@@ -1,35 +1,488 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Hyprland Remote control</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyprland Remote Control</title>
+
+    <!-- Tailwind -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+        /* =========================================================
+           WIRED SOUNDS FOR WIRED PEOPLE
+           HYPRLAND REMOTE
+           ========================================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #050505;
+            --panel: #0b0b0b;
+            --panel-light: #101010;
+
+            --red: #ce7688;
+            --red-dark: #61333e;
+            --red-deep: #3b2027;
+
+            --cream: #c1b48e;
+            --muted: #665e4d;
+
+            --line: #24191c;
+        }
+
+        /* =========================================================
+           BODY
+           ========================================================= */
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(206, 118, 136, 0.035),
+                    transparent 55%
+                ),
+                var(--black);
+            color: var(--cream);
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+        }
+
+        /* =========================================================
+           MAIN PANEL
+           ========================================================= */
+
+        .wired-card {
+            width: 100%;
+            max-width: 820px;
+            position: relative;
+            padding: 2.8rem 2.5rem;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.015),
+                    transparent 45%
+                ),
+                var(--panel);
+            border: 1px solid var(--red-dark);
+            border-radius: 0;
+            box-shadow:
+                0 0 0 1px rgba(206, 118, 136, 0.025),
+                0 20px 80px rgba(0, 0, 0, 0.8);
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.012) 0px,
+                    rgba(255, 255, 255, 0.012) 1px,
+                    transparent 1px,
+                    transparent 4px
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.015),
+                    transparent 45%
+                );
+            background-color: var(--panel);
+            overflow: hidden;
+        }
+
+        /* Linha superior */
+        .wired-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* Canto decorativo */
+        .wired-card::after {
+            content: "";
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 55px;
+            height: 55px;
+            border-top: 1px solid var(--red-dark);
+            border-right: 1px solid var(--red-dark);
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           TÍTULO – igual ao print: [ > HYPRLAND-REMOTE ]
+           ========================================================= */
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            color: var(--red);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            font-weight: 400;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(206, 118, 136, 0.12);
+        }
+
+        .title::before {
+            content: "[";
+            color: var(--muted);
+        }
+
+        .title::after {
+            content: "]";
+            color: var(--muted);
+        }
+
+        .title i {
+            color: var(--red);
+            font-size: 0.95rem;
+            filter: drop-shadow(0 0 6px rgba(206, 118, 136, 0.25));
+        }
+
+        /* Cursor piscante */
+        .title .cursor-blink {
+            display: inline-block;
+            width: 7px;
+            height: 18px;
+            margin-left: 0.1rem;
+            background: var(--red);
+            animation: blink 1.1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 45% { opacity: 1; }
+            46%, 100% { opacity: 0; }
+        }
+
+        /* =========================================================
+           WORKSPACE GRID
+           ========================================================= */
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        /* =========================================================
+           WORKSPACE BUTTON (padrão)
+           ========================================================= */
+
+        .workspace-btn {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 78px;
+            padding: 1rem 0.25rem;
+            background: #080808;
+            color: #4c3d40;
+            border: 1px solid var(--line);
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                color 0.15s ease,
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+
+        /* Indicador (pontinho) */
+        .workspace-btn::before {
+            content: "";
+            position: absolute;
+            top: 7px;
+            left: 7px;
+            width: 4px;
+            height: 4px;
+            background: #281c1f;
+            transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .workspace-btn .num {
+            font-size: 1.55rem;
+            line-height: 1;
+            font-weight: 400;
+            color: inherit;
+        }
+
+        .workspace-btn .label {
+            margin-top: 0.35rem;
+            color: var(--muted);
+            font-size: 0.5rem;
+            letter-spacing: 0.2em;
+            opacity: 0.7;
+        }
+
+        /* Hover */
+        .workspace-btn:hover {
+            background: #0e0a0b;
+            border-color: var(--red-dark);
+            color: var(--red);
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.45),
+                inset 0 0 20px rgba(206, 118, 136, 0.025);
+        }
+
+        .workspace-btn:hover::before {
+            background: var(--red);
+        }
+
+        /* =========================================================
+           ESTADO NORMAL (quando o JS adiciona bg-blue-500)
+           ========================================================= */
+
+        .workspace-btn.bg-blue-500 {
+            background: #080808 !important;
+            border-color: var(--line) !important;
+            color: #4c3d40 !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .workspace-btn.bg-blue-500::before {
+            background: #281c1f;
+            box-shadow: none;
+        }
+
+        /* =========================================================
+           ESTADO ATIVO (quando o JS adiciona bg-blue-700)
+           AGORA É APENAS UM EFEITO DE CLIQUE (ANIMAÇÃO)
+           ========================================================= */
+
+        .workspace-btn.bg-blue-700 {
+            /*
+               A animação `click-flash` vai fazer o efeito visual
+               e depois retornar ao estado normal (sem destaque).
+            */
+            animation: click-flash 0.6s ease forwards !important;
+        }
+
+        @keyframes click-flash {
+            0% {
+                transform: scale(1);
+                background: #080808;
+                border-color: var(--line);
+                color: #4c3d40;
+            }
+            30% {
+                transform: scale(0.94);
+                background: var(--red-dark);
+                border-color: var(--red);
+                color: var(--red);
+            }
+            70% {
+                transform: scale(1.03);
+                background: var(--red-dark);
+                border-color: var(--red);
+                color: var(--red);
+            }
+            100% {
+                transform: scale(1);
+                background: #080808;
+                border-color: var(--line);
+                color: #4c3d40;
+            }
+        }
+
+        /* O pontinho também pisca durante a animação */
+        .workspace-btn.bg-blue-700::before {
+            animation: dot-flash 0.6s ease forwards;
+        }
+
+        @keyframes dot-flash {
+            0% { background: #281c1f; box-shadow: none; }
+            30% { background: var(--red); box-shadow: 0 0 8px var(--red); }
+            70% { background: var(--red); box-shadow: 0 0 8px var(--red); }
+            100% { background: #281c1f; box-shadow: none; }
+        }
+
+        /* =========================================================
+           SCREENSHOT – igual ao print: "> SCREENSHOT"
+           ========================================================= */
+
+        #screenshot-button {
+            position: relative;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            padding: 0.75rem 1.5rem !important;
+            background: transparent !important;
+            color: var(--red) !important;
+            border: 1px solid var(--red-dark) !important;
+            border-radius: 0 !important;
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 0.75rem !important;
+            font-weight: 400 !important;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                box-shadow 0.15s ease,
+                transform 0.15s ease;
+        }
+
+        #screenshot-button::before {
+            content: ">";
+            color: var(--muted);
+        }
+
+        #screenshot-button:hover {
+            background: rgba(206, 118, 136, 0.035) !important;
+            border-color: var(--red) !important;
+            box-shadow: 0 0 25px rgba(206, 118, 136, 0.08);
+            transform: translateY(-1px);
+        }
+
+        #screenshot-button i {
+            font-size: 0.75rem;
+        }
+
+        /* =========================================================
+           RESULTADO (screenshot)
+           ========================================================= */
+
+        #screenshot-result {
+            min-height: 1.5rem;
+            margin-top: 1.5rem;
+            color: var(--muted);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.65rem;
+            text-align: center;
+            letter-spacing: 0.08em;
+        }
+
+        /* =========================================================
+           RESPONSIVO
+           ========================================================= */
+
+        @media (max-width: 767px) {
+            .workspace-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0.75rem;
+            }
+            .wired-card {
+                padding: 2rem 1rem;
+            }
+            .title {
+                font-size: 0.95rem;
+                letter-spacing: 0.1em;
+                margin-bottom: 2rem;
+            }
+            .workspace-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .workspace-btn {
+                min-height: 65px;
+            }
+            .workspace-btn .num {
+                font-size: 1.25rem;
+            }
+            #screenshot-button {
+                padding: 0.65rem 1rem !important;
+                font-size: 0.65rem !important;
+            }
+        }
+
+        /* =========================================================
+           SCROLLBAR
+           ========================================================= */
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--black);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--red-dark);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--red);
+        }
+    </style>
 </head>
+
 <body>
-{# Design an UI which displays 1-10 boxes of buttons to switch workspaces#}
-<div class="flex flex-col flex-wrap justify-center items-center h-screen bg-gray-100">
-    <div class="grid grid-cols-2 gap-4">
-        {% for i in range(1, 11) %}
-            <button id="workspace-{{ i }}"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-2"
-                    onclick="switchWorkspace({{ i }})">
-                Workspace {{ i }}
+
+    <div class="wired-card">
+
+        <!-- TÍTULO: [ > HYPRLAND-REMOTE ] -->
+        <div class="title">
+            <i class="fas fa-terminal"></i>
+            HYPRLAND-REMOTE
+            <span class="cursor-blink"></span>
+        </div>
+
+        <!-- WORKSPACES -->
+        <div class="workspace-grid">
+            {% for i in range(1, 11) %}
+                <button
+                    id="workspace-{{ i }}"
+                    class="workspace-btn"
+                    onclick="switchWorkspace({{ i }})"
+                >
+                    <span class="num">{{ i }}</span>
+                    <span class="label">WS</span>
+                </button>
+            {% endfor %}
+        </div>
+
+        <!-- SCREENSHOT: > SCREENSHOT com mt-12 (3rem) -->
+        <div class="mt-12 flex justify-center">
+            <button
+                id="screenshot-button"
+                onclick="window.location.href='/screenshot/take'"
+            >
+                <i class="fas fa-camera"></i>
+                SCREENSHOT
             </button>
-        {% endfor %}
+        </div>
+
+        <!-- RESULTADO -->
+        <div id="screenshot-result"></div>
     </div>
-    {# Add functionality to take screenshot #}
-    <div class="mt-4">
-        <button id="screenshot-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                onclick="window.location.href='/screenshot/take'">
-            Take Screenshot
-        </button>
-    </div>
-</div>
-<div id="screenshot-result" class="mt-4"></div>
-<script defer src="../static/main.js"></script>
+
+    <!-- =========================================================
+         JS ORIGINAL – NÃO ALTERADO
+         ========================================================= -->
+    <script defer src="../static/main.js"></script>
 
 </body>
 </html>
