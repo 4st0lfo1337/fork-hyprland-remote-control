@@ -13,7 +13,7 @@ sudo dnf install wl-clipboard jq
 # For hyprshot, visit: https://github.com/hyprwm/hyprshot
 ```
 
-## 🔥 Firewall Configuration
+## Firewall Configuration
 
 **Important**: You must configure your firewall to allow access to port 8000 for HTTP traffic.
 
@@ -32,10 +32,7 @@ sudo firewall-cmd --reload
 ### iptables (Manual configuration)
 ```bash
 sudo iptables -A INPUT -p tcp --dport 8000 -j ACCEPT
-sudo iptables-save > /etc/iptables/rules.v4
-```
-
-## 🚀 Setup Instructions
+sudo iptables-save > /etc/iptables/rules.v4Setup Instructions
 
 ### 1. Clone the Repository
 ```bash
