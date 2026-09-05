@@ -1,9 +1,10 @@
-from flask import Flask, render_template, jsonify, request, Response
+from flask import Flask, render_template, jsonify, request, Response, send_file
 import subprocess
 import random
 import os
 import re
 import json
+from urllib.parse import unquote
 
 app = Flask(__name__)
 
@@ -160,9 +161,28 @@ def lock_screen():
 
 # ---------- MEDIA CONTROL (playerctl) ----------
 
+@app.route('/media/art')
+def media_art():
+    """Serve a imagem da capa a partir do caminho fornecido (ex: file:///...)."""
+    path = request.args.get('path')
+    if not path:
+        return '', 404
+
+    # Remove prefixo file:// e decodifica
+    if path.startswith('file://'):
+        path = path[7:]
+    path = unquote(path)
+
+    # Verifica se o arquivo existe e é uma imagem
+    if os.path.isfile(path):
+        return send_file(path, mimetype='image/jpeg')
+    else:
+        return '', 404
+
+
 @app.route('/media', methods=['GET'])
 def get_media():
-    """Retorna informações da mídia atual e status."""
+    """Retorna informações da mídia atual e URL da capa (acessível via /media/art)."""
     try:
         # Tenta obter o título
         title_cmd = ['playerctl', 'metadata', '--format', '{{ title }}']
@@ -176,26 +196,30 @@ def get_media():
         if not artist:
             artist = "-"
 
-        # Álbum (para buscar arte, mas não usamos agora)
-        # album_cmd = ['playerctl', 'metadata', '--format', '{{ album }}']
-        # album = subprocess.run(album_cmd, capture_output=True, text=True).stdout.strip()
-
         # Status (Playing, Paused, Stopped)
         status_cmd = ['playerctl', 'status']
         status = subprocess.run(status_cmd, capture_output=True, text=True).stdout.strip()
         if status not in ['Playing', 'Paused']:
             status = 'Stopped'
 
-        # Tentar obter URL da capa (via playerctl metadata mpris:artUrl)
+        # Tentar obter URL da capa (mpris:artUrl)
         art_cmd = ['playerctl', 'metadata', '--format', '{{ mpris:artUrl }}']
         art_url = subprocess.run(art_cmd, capture_output=True, text=True).stdout.strip()
-        # Se não tiver, deixamos vazio (o frontend mostrará placeholder)
+
+        # Se for uma URL local (file://), criar caminho para nossa rota
+        if art_url.startswith('file://'):
+            art_url = f"/media/art?path={art_url}"
+        # Se for uma URL http, manter como está
+        elif art_url.startswith('http'):
+            pass  # mantém a URL original
+        else:
+            art_url = ''  # se não tiver, vazio
 
         return jsonify({
             'title': title,
             'artist': artist,
             'status': status,
-            'art_url': art_url if art_url.startswith('http') else ''
+            'art_url': art_url
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

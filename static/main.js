@@ -84,7 +84,7 @@ function switchWorkspace(workspaceId) {
             console.log("Success:", data);
             fetchMonitors();
             getVolume();
-            fetchMedia(); // Atualiza mídia também
+            fetchMedia();
         })
         .catch((err) => console.error("Error switching workspace:", err));
 }
@@ -198,9 +198,11 @@ function updateMediaUI(data) {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 
-    // Arte
-    if (data.art_url && data.art_url.startsWith("http")) {
-        artEl.innerHTML = `<img src="${data.art_url}" alt="capa" />`;
+    // Arte (capa)
+    if (data.art_url && data.art_url.length > 0) {
+        // Se a URL for relativa (começa com /media/art) ou absoluta http, usa diretamente
+        artEl.innerHTML =
+            `<img src="${data.art_url}" alt="capa" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>no cover</div>'" />`;
     } else {
         artEl.innerHTML = `<div class="placeholder">no cover</div>`;
     }
@@ -216,7 +218,6 @@ function mediaControl(action) {
         .then((data) => {
             // Atualiza a UI com os dados retornados
             updateMediaUI(data);
-            // Se quiser, atualiza também o volume (opcional)
         })
         .catch((err) => {
             console.error("Erro no controle de mídia:", err);
@@ -269,4 +270,3 @@ setInterval(() => {
     getVolume();
     fetchMedia();
 }, 5000);
-
