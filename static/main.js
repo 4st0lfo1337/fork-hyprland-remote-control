@@ -3,12 +3,10 @@
 // ================================================================
 
 function highlightWorkspaceButtons(monitors) {
-    // Remove destaques anteriores
     document.querySelectorAll(".workspace-btn").forEach((btn) => {
         btn.classList.remove("active-workspace", "focused-workspace");
     });
 
-    // Para cada monitor, destaca o workspace ativo
     monitors.forEach((mon) => {
         const wsId = mon.workspace;
         if (wsId !== undefined && wsId !== null) {
@@ -67,7 +65,6 @@ function fetchMonitors() {
 }
 
 function switchWorkspace(workspaceId) {
-    // Efeito de clique
     const btn = document.getElementById(`workspace-${workspaceId}`);
     if (btn) {
         btn.classList.add("click-flash");
@@ -85,9 +82,7 @@ function switchWorkspace(workspaceId) {
         })
         .then((data) => {
             console.log("Success:", data);
-            // Atualiza informações após mudança
             fetchMonitors();
-            // Também atualiza o volume (caso queira)
             getVolume();
         })
         .catch((err) => console.error("Error switching workspace:", err));
@@ -154,21 +149,100 @@ function toggleMute() {
 }
 
 // ================================================================
+// FUNÇÕES DE MÍDIA
+// ================================================================
+
+function updateMediaUI(data) {
+    const titleEl = document.getElementById("media-title");
+    const artistEl = document.getElementById("media-artist");
+    const statusEl = document.getElementById("media-status");
+    const artContainer = document.getElementById("media-art");
+    const playBtn = document.getElementById("media-play-btn");
+
+    if (data.error) {
+        titleEl.textContent = "Erro";
+        artistEl.textContent = "-";
+        statusEl.textContent = "⚠ erro";
+        return;
+    }
+
+    if (data.status === "stopped" || !data.title) {
+        titleEl.textContent = "Nenhuma mídia";
+        artistEl.textContent = "-";
+        statusEl.textContent = "⏹ parado";
+        // Limpa arte
+        artContainer.innerHTML = '<div class="placeholder">no cover</div>';
+        // Ícone play
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        return;
+    }
+
+    // Preenche informações
+    titleEl.textContent = data.title || "Desconhecido";
+    artistEl.textContent = data.artist || "Artista desconhecido";
+
+    // Status
+    let statusText = "";
+    if (data.status === "playing") {
+        statusText = "▶ tocando";
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    } else if (data.status === "paused") {
+        statusText = "⏸ pausado";
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    } else {
+        statusText = "⏹ parado";
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+    statusEl.textContent = statusText;
+
+    // Arte
+    if (data.art) {
+        artContainer.innerHTML =
+            `<img src="data:image/png;base64,${data.art}" alt="capa do álbum" />`;
+    } else {
+        artContainer.innerHTML = '<div class="placeholder">no cover</div>';
+    }
+}
+
+function fetchMediaStatus() {
+    fetch("/media/status")
+        .then((res) => res.json())
+        .then((data) => updateMediaUI(data))
+        .catch((err) => console.error("Erro ao buscar status da mídia:", err));
+}
+
+function mediaControl(action) {
+    fetch("/media/control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: action }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log("Media control:", data);
+            // Atualiza status após ação
+            fetchMediaStatus();
+        })
+        .catch((err) => console.error("Erro no controle de mídia:", err));
+}
+
+// ================================================================
 // INICIALIZAÇÃO
 // ================================================================
 
 function init() {
     fetchMonitors();
     getVolume();
+    fetchMediaStatus();
 }
 
-// Carregar na primeira vez e ao focar a janela
 document.addEventListener("DOMContentLoaded", init);
 window.addEventListener("focus", init);
 
-// Atualização periódica (a cada 5 segundos)
+// Atualiza periodicamente
 setInterval(() => {
     fetchMonitors();
     getVolume();
+    fetchMediaStatus();
 }, 5000);
 

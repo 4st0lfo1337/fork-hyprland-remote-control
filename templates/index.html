@@ -231,7 +231,6 @@
             background: var(--red);
         }
 
-        /* Destaque para workspace ativo (em qualquer monitor) */
         .workspace-btn.active-workspace {
             background: #0e0a0b;
             border-color: var(--red);
@@ -243,7 +242,6 @@
             box-shadow: 0 0 8px var(--red);
         }
 
-        /* Destaque para workspace focado (o que tem o cursor) */
         .workspace-btn.focused-workspace {
             background: #0e0a0b;
             border-color: #ce7688;
@@ -255,7 +253,6 @@
             box-shadow: 0 0 12px #ce7688;
         }
 
-        /* Animação de clique (flash) */
         .workspace-btn.click-flash {
             animation: click-flash 0.6s ease forwards !important;
         }
@@ -338,6 +335,84 @@
             color: var(--muted);
         }
 
+        /* ========== MÍDIA ========== */
+        .media-container {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .media-player {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .media-art {
+            width: 80px;
+            height: 80px;
+            background: #080808;
+            border: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .media-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .media-art .placeholder {
+            color: var(--muted);
+            font-size: 0.6rem;
+            text-align: center;
+            padding: 0.3rem;
+        }
+
+        .media-info {
+            flex: 1;
+            min-width: 120px;
+            text-align: left;
+        }
+        .media-title {
+            font-size: 0.95rem;
+            color: var(--cream);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+        }
+        .media-artist {
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .media-status-badge {
+            font-size: 0.6rem;
+            color: var(--red);
+            text-transform: uppercase;
+        }
+
+        .media-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        .media-btn {
+            background: #080808;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 0.4rem 0.7rem;
+            cursor: pointer;
+            transition: 0.15s ease;
+            font-size: 0.9rem;
+        }
+        .media-btn:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
         /* ========== SCREENSHOT ========== */
         #screenshot-button {
             position: relative;
@@ -403,6 +478,9 @@
             .workspace-btn .num { font-size: 1.25rem; }
             .monitors-container { flex-direction: column; align-items: center; gap: 0.5rem; }
             .volume-controls { flex-wrap: wrap; }
+            .media-player { flex-direction: column; align-items: center; text-align: center; }
+            .media-info { text-align: center; }
+            .media-controls { margin-left: 0; }
             #screenshot-button { padding: 0.65rem 1rem !important; font-size: 0.65rem !important; }
         }
 
@@ -455,6 +533,34 @@
             <button class="volume-btn" id="vol-mute-btn" onclick="toggleMute()">
                 <i class="fas fa-volume-mute"></i>
             </button>
+        </div>
+
+        <!-- MÍDIA -->
+        <div class="media-container">
+            <div id="media-player" class="media-player">
+                <!-- Arte -->
+                <div class="media-art" id="media-art">
+                    <div class="placeholder">no cover</div>
+                </div>
+                <!-- Informações -->
+                <div class="media-info">
+                    <div class="media-title" id="media-title">Nenhuma mídia</div>
+                    <div class="media-artist" id="media-artist">-</div>
+                    <div class="media-status-badge" id="media-status">⏹ parado</div>
+                </div>
+                <!-- Controles -->
+                <div class="media-controls">
+                    <button class="media-btn" onclick="mediaControl('previous')" title="Anterior">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button class="media-btn" id="media-play-btn" onclick="mediaControl('play-pause')" title="Play/Pause">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="media-btn" onclick="mediaControl('next')" title="Próxima">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- SCREENSHOT -->
