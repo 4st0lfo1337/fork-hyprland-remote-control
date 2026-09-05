@@ -242,6 +242,90 @@ def control_media():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------- WINDOWS (lista de janelas) ----------
+
+@app.route('/windows')
+def get_windows():
+    """Retorna lista de todas as janelas abertas."""
+    try:
+        result = subprocess.run(
+            ['hyprctl', 'clients', '-j'],
+            capture_output=True, text=True, check=True
+        )
+        clients = json.loads(result.stdout)
+        # Pega o endereço da janela em foco
+        active = subprocess.run(
+            ['hyprctl', 'activewindow', '-j'],
+            capture_output=True, text=True, check=True
+        )
+        active_data = json.loads(active.stdout)
+        focused_address = active_data.get('address')
+
+        windows = []
+        for c in clients:
+            if c.get('mapped', True):
+                windows.append({
+                    'address': c.get('address'),
+                    'title': c.get('title', '')[:50],
+                    'class': c.get('class', ''),
+                    'workspace': c.get('workspace', {}).get('id'),
+                    'monitor': c.get('monitor'),
+                    'focused': c.get('address') == focused_address,
+                    'pid': c.get('pid')
+                })
+        # Ordena por workspace e título
+        windows.sort(key=lambda w: (w['workspace'] or 999, w['title']))
+        return jsonify(windows), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/window/focus', methods=['POST'])
+def focus_window():
+    address = request.json.get('address')
+    if not address:
+        return jsonify({'error': 'address required'}), 400
+    try:
+        subprocess.run(
+            ['hyprctl', 'dispatch', 'focuswindow', f'address:{address}'],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/window/move', methods=['POST'])
+def move_window():
+    address = request.json.get('address')
+    workspace = request.json.get('workspace')
+    if not address or workspace is None:
+        return jsonify({'error': 'address and workspace required'}), 400
+    try:
+        subprocess.run(
+            ['hyprctl', 'dispatch', 'movetoworkspace', str(workspace), f'address:{address}'],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/window/kill', methods=['POST'])
+def kill_window():
+    address = request.json.get('address')
+    if not address:
+        return jsonify({'error': 'address required'}), 400
+    try:
+        subprocess.run(
+            ['hyprctl', 'dispatch', 'closewindow', f'address:{address}'],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ---------- SYSTEM MONITOR ----------
 
 @app.route('/system/stats')
@@ -319,7 +403,7 @@ def system_stats():
         return jsonify({'error': str(e)}), 500
 
 
-# ---------- MICROPHONE ----------
+# ---------- MICROFONE ----------
 
 @app.route('/mic/status')
 def mic_status():

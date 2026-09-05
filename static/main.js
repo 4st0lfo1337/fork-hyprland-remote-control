@@ -85,6 +85,7 @@ function switchWorkspace(workspaceId) {
             fetchMonitors();
             getVolume();
             fetchMedia();
+            fetchWindows();
         })
         .catch((err) => console.error("Error switching workspace:", err));
 }
@@ -444,6 +445,115 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ================================================================
+// FUNÇÕES DE JANELAS
+// ================================================================
+
+let winInterval = null;
+
+function fetchWindows() {
+    fetch("/windows")
+        .then((res) => res.json())
+        .then((windows) => {
+            const container = document.getElementById("windows-list");
+            const count = document.getElementById("win-count");
+            if (!windows || windows.length === 0) {
+                container.innerHTML =
+                    '<div class="text-zinc-600 text-[0.5rem] text-center py-2">Nenhuma janela aberta</div>';
+                count.textContent = "0";
+                return;
+            }
+            count.textContent = windows.length;
+            let html = "";
+            windows.forEach((w) => {
+                const focusedClass = w.focused ? "focused" : "";
+                const ws = w.workspace !== null ? w.workspace : "?";
+                html += `
+                            <div class="window-item ${focusedClass}">
+                                <span class="win-title" title="${w.title}">${
+                    w.title || w.class || "Sem título"
+                }</span>
+                                <span class="win-ws">WS ${ws}</span>
+                                <div class="win-actions">
+                                    <input type="number" min="1" max="10" value="${ws}" class="win-move-input" data-address="${w.address}">
+                                    <button class="focus-btn" onclick="focusWindow('${w.address}')" title="Focar"><i class="fas fa-eye"></i></button>
+                                    <button onclick="moveWindow('${w.address}')" title="Mover"><i class="fas fa-arrow-right"></i></button>
+                                    <button class="kill-btn" onclick="killWindow('${w.address}')" title="Fechar"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        `;
+            });
+            container.innerHTML = html;
+            container.querySelectorAll(".win-move-input").forEach((input) => {
+                input.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") {
+                        const address = this.dataset.address;
+                        moveWindow(address);
+                    }
+                });
+            });
+        })
+        .catch((err) => console.error("Erro ao buscar janelas:", err));
+}
+
+function focusWindow(address) {
+    fetch("/window/focus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address }),
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.ok) {
+                fetchWindows();
+                fetchMonitors();
+            }
+        })
+        .catch((err) => console.error("Erro ao focar janela:", err));
+}
+
+function moveWindow(address) {
+    const input = document.querySelector(
+        `.win-move-input[data-address="${address}"]`,
+    );
+    if (!input) return;
+    const workspace = parseInt(input.value);
+    if (!workspace || workspace < 1 || workspace > 10) {
+        alert("Workspace inválido (1-10)");
+        return;
+    }
+    fetch("/window/move", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address, workspace: workspace }),
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.ok) {
+                fetchWindows();
+                fetchMonitors();
+            }
+        })
+        .catch((err) => console.error("Erro ao mover janela:", err));
+}
+
+function killWindow(address) {
+    if (!confirm("Fechar esta janela?")) return;
+    fetch("/window/kill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address }),
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.ok) {
+                fetchWindows();
+                fetchMonitors();
+            }
+        })
+        .catch((err) => console.error("Erro ao fechar janela:", err));
+}
+
+// ================================================================
 // INICIALIZAÇÃO
 // ================================================================
 
@@ -454,11 +564,14 @@ function init() {
     fetchSystemStats();
     fetchMicStatus();
     fetchMicSources();
+    fetchWindows();
 
     if (sysInterval) clearInterval(sysInterval);
     sysInterval = setInterval(fetchSystemStats, 2000);
     if (micInterval) clearInterval(micInterval);
     micInterval = setInterval(fetchMicStatus, 2000);
+    if (winInterval) clearInterval(winInterval);
+    winInterval = setInterval(fetchWindows, 3000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
