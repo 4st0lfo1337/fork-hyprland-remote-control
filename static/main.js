@@ -84,6 +84,7 @@ function switchWorkspace(workspaceId) {
             console.log("Success:", data);
             fetchMonitors();
             getVolume();
+            fetchMedia(); // Atualiza mídia também
         })
         .catch((err) => console.error("Error switching workspace:", err));
 }
@@ -149,66 +150,60 @@ function toggleMute() {
 }
 
 // ================================================================
-// FUNÇÕES DE MÍDIA
+// FUNÇÕES DE MÍDIA (playerctl)
 // ================================================================
+
+function fetchMedia() {
+    fetch("/media")
+        .then((res) => {
+            if (!res.ok) throw new Error("Erro ao buscar mídia");
+            return res.json();
+        })
+        .then((data) => {
+            updateMediaUI(data);
+        })
+        .catch((err) => {
+            console.error("Erro ao buscar mídia:", err);
+            // Fallback: mostrar dados vazios
+            updateMediaUI({
+                title: "Nenhuma mídia",
+                artist: "-",
+                status: "Stopped",
+                art_url: "",
+            });
+        });
+}
 
 function updateMediaUI(data) {
     const titleEl = document.getElementById("media-title");
     const artistEl = document.getElementById("media-artist");
     const statusEl = document.getElementById("media-status");
-    const artContainer = document.getElementById("media-art");
+    const artEl = document.getElementById("media-art");
     const playBtn = document.getElementById("media-play-btn");
 
-    if (data.error) {
-        titleEl.textContent = "Erro";
-        artistEl.textContent = "-";
-        statusEl.textContent = "⚠ erro";
-        return;
-    }
-
-    if (data.status === "stopped" || !data.title) {
-        titleEl.textContent = "Nenhuma mídia";
-        artistEl.textContent = "-";
-        statusEl.textContent = "⏹ parado";
-        // Limpa arte
-        artContainer.innerHTML = '<div class="placeholder">no cover</div>';
-        // Ícone play
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        return;
-    }
-
-    // Preenche informações
-    titleEl.textContent = data.title || "Desconhecido";
-    artistEl.textContent = data.artist || "Artista desconhecido";
+    // Título e artista
+    titleEl.textContent = data.title || "Nenhuma mídia";
+    artistEl.textContent = data.artist || "-";
 
     // Status
-    let statusText = "";
-    if (data.status === "playing") {
-        statusText = "▶ tocando";
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    } else if (data.status === "paused") {
-        statusText = "⏸ pausado";
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-    } else {
-        statusText = "⏹ parado";
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-    }
+    let statusText = "⏹ parado";
+    if (data.status === "Playing") statusText = "▶ tocando";
+    else if (data.status === "Paused") statusText = "⏸ pausado";
     statusEl.textContent = statusText;
 
-    // Arte
-    if (data.art) {
-        artContainer.innerHTML =
-            `<img src="data:image/png;base64,${data.art}" alt="capa do álbum" />`;
+    // Ícone do play/pause
+    if (data.status === "Playing") {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
-        artContainer.innerHTML = '<div class="placeholder">no cover</div>';
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
-}
 
-function fetchMediaStatus() {
-    fetch("/media/status")
-        .then((res) => res.json())
-        .then((data) => updateMediaUI(data))
-        .catch((err) => console.error("Erro ao buscar status da mídia:", err));
+    // Arte
+    if (data.art_url && data.art_url.startsWith("http")) {
+        artEl.innerHTML = `<img src="${data.art_url}" alt="capa" />`;
+    } else {
+        artEl.innerHTML = `<div class="placeholder">no cover</div>`;
+    }
 }
 
 function mediaControl(action) {
@@ -217,13 +212,43 @@ function mediaControl(action) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: action }),
     })
-        .then((response) => response.json())
+        .then((res) => res.json())
         .then((data) => {
-            console.log("Media control:", data);
-            // Atualiza status após ação
-            fetchMediaStatus();
+            // Atualiza a UI com os dados retornados
+            updateMediaUI(data);
+            // Se quiser, atualiza também o volume (opcional)
         })
-        .catch((err) => console.error("Erro no controle de mídia:", err));
+        .catch((err) => {
+            console.error("Erro no controle de mídia:", err);
+        });
+}
+
+// ================================================================
+// LOCK SCREEN
+// ================================================================
+
+function lockScreen() {
+    fetch("/lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Lock screen:", data.message);
+            document.getElementById("screenshot-result").textContent =
+                "🔒 Screen locked!";
+            setTimeout(() => {
+                document.getElementById("screenshot-result").textContent = "";
+            }, 3000);
+        })
+        .catch((err) => {
+            console.error("Error locking screen:", err);
+            document.getElementById("screenshot-result").textContent =
+                "❌ Error locking screen";
+        });
 }
 
 // ================================================================
@@ -233,16 +258,15 @@ function mediaControl(action) {
 function init() {
     fetchMonitors();
     getVolume();
-    fetchMediaStatus();
+    fetchMedia();
 }
 
 document.addEventListener("DOMContentLoaded", init);
 window.addEventListener("focus", init);
 
-// Atualiza periodicamente
 setInterval(() => {
     fetchMonitors();
     getVolume();
-    fetchMediaStatus();
+    fetchMedia();
 }, 5000);
 

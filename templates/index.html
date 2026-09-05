@@ -413,8 +413,16 @@
             color: var(--red);
         }
 
-        /* ========== SCREENSHOT ========== */
-        #screenshot-button {
+        /* ========== SCREENSHOT & LOCK ========== */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        #screenshot-button,
+        #lock-button {
             position: relative;
             display: inline-flex !important;
             align-items: center;
@@ -438,19 +446,22 @@
                 transform 0.15s ease;
         }
 
-        #screenshot-button::before {
+        #screenshot-button::before,
+        #lock-button::before {
             content: ">";
             color: var(--muted);
         }
 
-        #screenshot-button:hover {
+        #screenshot-button:hover,
+        #lock-button:hover {
             background: rgba(206, 118, 136, 0.035) !important;
             border-color: var(--red) !important;
             box-shadow: 0 0 25px rgba(206, 118, 136, 0.08);
             transform: translateY(-1px);
         }
 
-        #screenshot-button i {
+        #screenshot-button i,
+        #lock-button i {
             font-size: 0.75rem;
         }
 
@@ -481,7 +492,7 @@
             .media-player { flex-direction: column; align-items: center; text-align: center; }
             .media-info { text-align: center; }
             .media-controls { margin-left: 0; }
-            #screenshot-button { padding: 0.65rem 1rem !important; font-size: 0.65rem !important; }
+            #screenshot-button, #lock-button { padding: 0.65rem 1rem !important; font-size: 0.65rem !important; }
         }
 
         ::-webkit-scrollbar { width: 5px; }
@@ -563,14 +574,13 @@
             </div>
         </div>
 
-        <!-- SCREENSHOT -->
-        <div class="mt-8 flex justify-center">
-            <button
-                id="screenshot-button"
-                onclick="window.location.href='/screenshot/take'"
-            >
-                <i class="fas fa-camera"></i>
-                SCREENSHOT
+        <!-- AÇÕES: SCREENSHOT + LOCK -->
+        <div class="action-buttons">
+            <button id="screenshot-button" onclick="window.location.href='/screenshot/take'">
+                <i class="fas fa-camera"></i> SCREENSHOT
+            </button>
+            <button id="lock-button" onclick="lockScreen()">
+                <i class="fas fa-lock"></i> LOCK
             </button>
         </div>
 

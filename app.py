@@ -4,8 +4,6 @@ import random
 import os
 import re
 import json
-import base64
-import tempfile
 
 app = Flask(__name__)
 
@@ -149,117 +147,72 @@ def control_volume():
         return jsonify({'error': str(e)}), 500
 
 
-# ---------- MÍDIA (playerctl) ----------
+# ---------- LOCK SCREEN ----------
 
-def get_media_art(metadata):
-    """
-    Tenta extrair a arte do álbum dos metadados.
-    Retorna uma string base64 da imagem ou None.
-    """
-    # playerctl pode fornecer a URL da arte via mpris:artUrl
-    art_url = metadata.get('mpris:artUrl')
-    if art_url and art_url.startswith('file://'):
-        # caminho local
-        art_path = art_url[7:]  # remove file://
-        if os.path.exists(art_path):
-            try:
-                # Redimensiona para um tamanho razoável (ex: 200x200) para não pesar
-                # Usamos ffmpeg para redimensionar e converter para PNG base64
-                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                    tmp_path = tmp.name
-                cmd = ['ffmpeg', '-i', art_path, '-vf', 'scale=200:200', '-frames:v', '1', tmp_path, '-y']
-                subprocess.run(cmd, capture_output=True, check=True)
-                with open(tmp_path, 'rb') as f:
-                    img_data = f.read()
-                os.unlink(tmp_path)
-                return base64.b64encode(img_data).decode('utf-8')
-            except Exception:
-                # Se falhar, tenta ler a imagem diretamente (sem redimensionar)
-                try:
-                    with open(art_path, 'rb') as f:
-                        img_data = f.read()
-                    return base64.b64encode(img_data).decode('utf-8')
-                except Exception:
-                    pass
-    return None
-
-
-@app.route('/media/status', methods=['GET'])
-def media_status():
-    """
-    Retorna o status atual do player (playerctl).
-    """
+@app.route('/lock', methods=['POST'])
+def lock_screen():
     try:
-        # Verifica se algum player está rodando
-        players = subprocess.run(
-            ['playerctl', '-l'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        if not players.stdout.strip():
-            return jsonify({'status': 'stopped', 'title': None, 'artist': None, 'album': None, 'art': None}), 200
+        subprocess.Popen(['hyprlock'], start_new_session=True)
+        return jsonify({'message': 'Screen locked'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-        # Pega o player ativo (ou o primeiro da lista)
-        player = players.stdout.strip().split('\n')[0]
 
-        # Obtém metadados
-        metadata_cmd = ['playerctl', '--player', player, 'metadata', '--format', '{{ title }}||{{ artist }}||{{ album }}||{{ mpris:artUrl }}']
-        result = subprocess.run(metadata_cmd, capture_output=True, text=True, check=True)
-        parts = result.stdout.strip().split('||')
-        title = parts[0] if len(parts) > 0 else None
-        artist = parts[1] if len(parts) > 1 else None
-        album = parts[2] if len(parts) > 2 else None
-        art_url = parts[3] if len(parts) > 3 else None
+# ---------- MEDIA CONTROL (playerctl) ----------
 
-        # Status (playing, paused)
-        status_cmd = ['playerctl', '--player', player, 'status']
-        status_result = subprocess.run(status_cmd, capture_output=True, text=True, check=True)
-        status = status_result.stdout.strip().lower()
+@app.route('/media', methods=['GET'])
+def get_media():
+    """Retorna informações da mídia atual e status."""
+    try:
+        # Tenta obter o título
+        title_cmd = ['playerctl', 'metadata', '--format', '{{ title }}']
+        title = subprocess.run(title_cmd, capture_output=True, text=True).stdout.strip()
+        if not title:
+            title = "Nenhuma mídia"
 
-        # Obter arte (se disponível)
-        # Vamos montar um dicionário com os metadados completos para a função get_media_art
-        metadata_dict = {'mpris:artUrl': art_url} if art_url else {}
-        art_base64 = None
-        if art_url and art_url.startswith('file://'):
-            art_base64 = get_media_art(metadata_dict)
+        # Artista
+        artist_cmd = ['playerctl', 'metadata', '--format', '{{ artist }}']
+        artist = subprocess.run(artist_cmd, capture_output=True, text=True).stdout.strip()
+        if not artist:
+            artist = "-"
+
+        # Álbum (para buscar arte, mas não usamos agora)
+        # album_cmd = ['playerctl', 'metadata', '--format', '{{ album }}']
+        # album = subprocess.run(album_cmd, capture_output=True, text=True).stdout.strip()
+
+        # Status (Playing, Paused, Stopped)
+        status_cmd = ['playerctl', 'status']
+        status = subprocess.run(status_cmd, capture_output=True, text=True).stdout.strip()
+        if status not in ['Playing', 'Paused']:
+            status = 'Stopped'
+
+        # Tentar obter URL da capa (via playerctl metadata mpris:artUrl)
+        art_cmd = ['playerctl', 'metadata', '--format', '{{ mpris:artUrl }}']
+        art_url = subprocess.run(art_cmd, capture_output=True, text=True).stdout.strip()
+        # Se não tiver, deixamos vazio (o frontend mostrará placeholder)
 
         return jsonify({
-            'status': status,
             'title': title,
             'artist': artist,
-            'album': album,
-            'art': art_base64  # string base64 ou None
+            'status': status,
+            'art_url': art_url if art_url.startswith('http') else ''
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
 @app.route('/media/control', methods=['POST'])
-def media_control():
-    """
-    Ações: play-pause, next, previous, stop (opcional).
-    """
+def control_media():
+    """Controla a mídia: play-pause, next, previous."""
     data = request.json
     action = data.get('action')
-    if not action:
-        return jsonify({'error': 'Action required'}), 400
+    if action not in ['play-pause', 'next', 'previous']:
+        return jsonify({'error': 'Invalid action'}), 400
 
     try:
-        # Pega o player ativo
-        players = subprocess.run(
-            ['playerctl', '-l'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        if not players.stdout.strip():
-            return jsonify({'error': 'No player running'}), 404
-        player = players.stdout.strip().split('\n')[0]
-
-        cmd = ['playerctl', '--player', player, action]
-        subprocess.run(cmd, check=True)
-        return jsonify({'message': f'{action} executed'}), 200
+        subprocess.run(['playerctl', action], check=True)
+        # Retorna o estado atualizado
+        return get_media()
     except subprocess.CalledProcessError as e:
         return jsonify({'error': str(e)}), 500
 
