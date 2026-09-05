@@ -464,32 +464,41 @@
             color: var(--red);
         }
 
-        /* Timeline slider */
-        .media-timeline input[type="range"] {
-            height: 6px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: #2a2a2a;
-            border-radius: 3px;
-            outline: none;
+        /* Timeline – barra de progresso estática */
+        .media-timeline {
+            width: 100%;
+            max-width: 300px;
+            margin: 0.3rem auto 0;
         }
-        .media-timeline input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--red);
-            cursor: pointer;
-            box-shadow: 0 0 8px rgba(206,118,136,0.5);
+        .media-timeline .time-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.5rem;
+            font-family: monospace;
+            color: var(--muted);
         }
-        .media-timeline input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
+        .media-timeline .time-row .time-label {
+            min-width: 2.8rem;
+            text-align: right;
+        }
+        .media-timeline .time-row .time-label:last-child {
+            text-align: left;
+        }
+        .media-timeline .progress-track {
+            flex: 1;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .media-timeline .progress-track .progress-fill {
+            height: 100%;
             background: var(--red);
-            cursor: pointer;
-            border: none;
+            width: 0%;
+            transition: width 0.2s ease;
+            border-radius: 2px;
         }
 
         /* ========== SCREENSHOT & LOCK ========== */
@@ -771,7 +780,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT (COM SEEK) -->
+        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT (COM BARRA DE PROGRESSO ESTÁTICA) -->
         <!-- ============================================================ -->
         <div id="tab2" class="tab-content">
             <div class="media-container">
@@ -795,13 +804,15 @@
                             <i class="fas fa-forward"></i>
                         </button>
                     </div>
-                    <!-- SEEK SLIDER -->
-                    <div class="media-timeline mt-2 w-full max-w-[300px] mx-auto px-1">
-                        <div class="flex items-center gap-2">
-                            <span id="media-current-time" class="text-[0.5rem] text-zinc-500 min-w-[2.8rem] text-right font-mono">0:00</span>
-                            <input id="media-seek-slider" type="range" min="0" max="100" value="0"
-                                   class="flex-1">
-                            <span id="media-duration" class="text-[0.5rem] text-zinc-500 min-w-[2.8rem] font-mono">0:00</span>
+
+                    <!-- BARRA DE PROGRESSO ESTÁTICA -->
+                    <div class="media-timeline">
+                        <div class="time-row">
+                            <span class="time-label" id="media-current-time">0:00</span>
+                            <div class="progress-track">
+                                <div class="progress-fill" id="media-progress-fill" style="width:0%"></div>
+                            </div>
+                            <span class="time-label" id="media-duration">0:00</span>
                         </div>
                     </div>
                 </div>
@@ -1078,7 +1089,6 @@
         // FUNÇÕES DE MÍDIA (playerctl)
         // ================================================================
 
-        let isSeeking = false;
         let mediaPosInterval = null;
 
         function fetchMedia() {
@@ -1159,7 +1169,7 @@
         }
 
         // ================================================================
-        // FUNÇÕES DE SEEK / TIMELINE
+        // FUNÇÕES DE POSIÇÃO / BARRA DE PROGRESSO
         // ================================================================
 
         function fetchMediaPosition() {
@@ -1170,19 +1180,17 @@
                         console.warn("Erro ao buscar posição:", data.error);
                         return;
                     }
-                    const slider = document.getElementById("media-seek-slider");
                     const currentTime = document.getElementById("media-current-time");
                     const durationEl = document.getElementById("media-duration");
+                    const progressFill = document.getElementById("media-progress-fill");
 
                     if (data.duration > 0) {
                         const pct = Math.min(100, (data.position / data.duration) * 100);
-                        if (!isSeeking) {
-                            slider.value = pct;
-                        }
+                        progressFill.style.width = pct + '%';
                         currentTime.textContent = formatTime(data.position);
                         durationEl.textContent = formatTime(data.duration);
                     } else {
-                        slider.value = 0;
+                        progressFill.style.width = '0%';
                         currentTime.textContent = "0:00";
                         durationEl.textContent = "0:00";
                     }
@@ -1196,46 +1204,6 @@
             const s = Math.floor(seconds % 60);
             return m + ":" + (s < 10 ? "0" : "") + s;
         }
-
-        // Inicialização do slider de seek
-        document.addEventListener("DOMContentLoaded", function () {
-            const seekSlider = document.getElementById("media-seek-slider");
-            if (seekSlider) {
-                seekSlider.addEventListener("pointerdown", () => {
-                    isSeeking = true;
-                });
-                seekSlider.addEventListener("input", function () {
-                    // Atualiza o tempo enquanto arrasta
-                    const duration = parseFloat(document.getElementById("media-duration").textContent.replace(":", "."));
-                    if (duration > 0) {
-                        const pct = parseFloat(this.value) / 100;
-                        const pos = pct * duration;
-                        document.getElementById("media-current-time").textContent = formatTime(pos);
-                    }
-                });
-                seekSlider.addEventListener("change", function () {
-                    isSeeking = false;
-                    const duration = parseFloat(document.getElementById("media-duration").textContent.replace(":", "."));
-                    if (duration > 0) {
-                        const pos = (parseFloat(this.value) / 100) * duration;
-                        fetch("/media/seek", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ position: pos })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.ok) {
-                                fetchMediaPosition();
-                            } else {
-                                console.error("Erro ao buscar:", data.error);
-                            }
-                        })
-                        .catch(err => console.error("Erro ao enviar seek:", err));
-                    }
-                });
-            }
-        });
 
         // ================================================================
         // LOCK SCREEN
@@ -1452,11 +1420,11 @@
         });
 
         // ================================================================
-        // FUNÇÕES DE JANELAS (CORRIGIDA – evento único e select independente)
+        // FUNÇÕES DE JANELAS
         // ================================================================
 
         let winInterval = null;
-        let windowsData = []; // cache para diff
+        let windowsData = [];
 
         function fetchWindows() {
             fetch("/windows")

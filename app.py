@@ -328,7 +328,6 @@ def get_windows():
             capture_output=True, text=True, check=True
         )
         clients = json.loads(result.stdout)
-        # Pega o endereço da janela em foco
         active = subprocess.run(
             ['hyprctl', 'activewindow', '-j'],
             capture_output=True, text=True, check=True
@@ -348,7 +347,6 @@ def get_windows():
                     'focused': c.get('address') == focused_address,
                     'pid': c.get('pid')
                 })
-        # Ordena por workspace e título
         windows.sort(key=lambda w: (w['workspace'] or 999, w['title']))
         return jsonify(windows), 200
     except Exception as e:
@@ -414,9 +412,7 @@ def kill_window():
 
 @app.route('/system/stats')
 def system_stats():
-    """Retorna estatísticas do sistema: CPU, RAM, GPU (NVIDIA) e top processos."""
     try:
-        # CPU
         cpu_percent = psutil.cpu_percent(interval=0.5)
         cpu_freq = psutil.cpu_freq()
         cpu_temp = None
@@ -429,13 +425,11 @@ def system_stats():
         except (AttributeError, KeyError):
             pass
 
-        # RAM
         mem = psutil.virtual_memory()
         mem_used = round(mem.used / (1024**3), 1)
         mem_total = round(mem.total / (1024**3), 1)
         mem_percent = mem.percent
 
-        # GPU (NVIDIA)
         gpu = None
         try:
             result = subprocess.run(
@@ -454,7 +448,6 @@ def system_stats():
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
             pass
 
-        # Top processos (por memória)
         processes = []
         for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
             try:
@@ -491,9 +484,7 @@ def system_stats():
 
 @app.route('/mic/status')
 def mic_status():
-    """Retorna status do microfone padrão: volume e mute."""
     try:
-        # Volume
         result = subprocess.run(
             ['pactl', 'get-source-volume', '@DEFAULT_SOURCE@'],
             capture_output=True, text=True, check=True
@@ -501,7 +492,6 @@ def mic_status():
         match = re.search(r'(\d+)%', result.stdout)
         volume = int(match.group(1)) if match else 0
 
-        # Mute
         mute_result = subprocess.run(
             ['pactl', 'get-source-mute', '@DEFAULT_SOURCE@'],
             capture_output=True, text=True, check=True
@@ -515,7 +505,6 @@ def mic_status():
 
 @app.route('/mic/volume', methods=['POST'])
 def mic_volume():
-    """Ajusta o volume do microfone (0-150%)."""
     data = request.json
     pct = data.get('pct')
     if pct is None:
@@ -532,7 +521,6 @@ def mic_volume():
 
 @app.route('/mic/mute', methods=['POST'])
 def mic_mute():
-    """Alterna o mute do microfone."""
     try:
         subprocess.run(
             ['pactl', 'set-source-mute', '@DEFAULT_SOURCE@', 'toggle'],
@@ -545,7 +533,6 @@ def mic_mute():
 
 @app.route('/mic/sources')
 def mic_sources():
-    """Lista todas as fontes de áudio disponíveis (entradas)."""
     try:
         result = subprocess.run(
             ['pactl', 'list', 'sources', 'short'],
@@ -566,7 +553,6 @@ def mic_sources():
 
 @app.route('/mic/source', methods=['POST'])
 def mic_set_source():
-    """Define a fonte padrão."""
     source_id = request.json.get('id')
     if not source_id:
         return jsonify({'error': 'source id required'}), 400
