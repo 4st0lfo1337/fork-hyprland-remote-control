@@ -242,6 +242,81 @@ def control_media():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/media/position', methods=['GET'])
+def media_position():
+    """Retorna a posição atual e duração da mídia."""
+    try:
+        # Tenta obter a posição
+        pos = subprocess.run(
+            ['playerctl', 'position'],
+            capture_output=True, text=True, check=False
+        )
+        position = 0.0
+        if pos.returncode == 0 and pos.stdout.strip():
+            try:
+                position = float(pos.stdout.strip())
+            except ValueError:
+                pass
+
+        # Tenta obter a duração
+        dur = subprocess.run(
+            ['playerctl', 'metadata', '--format', '{{ duration }}'],
+            capture_output=True, text=True, check=False
+        )
+        duration = 0.0
+        if dur.returncode == 0 and dur.stdout.strip():
+            try:
+                duration = float(dur.stdout.strip())
+            except ValueError:
+                pass
+
+        # Se a duração for 0, tenta obter via `mpris:length` (alguns players)
+        if duration == 0:
+            dur2 = subprocess.run(
+                ['playerctl', 'metadata', '--format', '{{ mpris:length }}'],
+                capture_output=True, text=True, check=False
+            )
+            if dur2.returncode == 0 and dur2.stdout.strip():
+                try:
+                    # mpris:length vem em microssegundos
+                    duration = float(dur2.stdout.strip()) / 1000000.0
+                except ValueError:
+                    pass
+
+        status = subprocess.run(
+            ['playerctl', 'status'],
+            capture_output=True, text=True
+        ).stdout.strip()
+        if status not in ['Playing', 'Paused']:
+            status = 'Stopped'
+
+        return jsonify({
+            'position': position,
+            'duration': duration,
+            'status': status
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e), 'position': 0, 'duration': 0}), 500
+
+
+@app.route('/media/seek', methods=['POST'])
+def media_seek():
+    """Define a posição da mídia (em segundos)."""
+    data = request.json
+    position = data.get('position')
+    if position is None:
+        return jsonify({'error': 'position required'}), 400
+    try:
+        # playerctl position aceita segundos ou formato "X.Y"
+        subprocess.run(
+            ['playerctl', 'position', str(float(position))],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ---------- WINDOWS (lista de janelas) ----------
 
 @app.route('/windows')

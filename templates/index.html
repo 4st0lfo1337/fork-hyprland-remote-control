@@ -464,6 +464,34 @@
             color: var(--red);
         }
 
+        /* Timeline slider */
+        .media-timeline input[type="range"] {
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #2a2a2a;
+            border-radius: 3px;
+            outline: none;
+        }
+        .media-timeline input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--red);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(206,118,136,0.5);
+        }
+        .media-timeline input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--red);
+            cursor: pointer;
+            border: none;
+        }
+
         /* ========== SCREENSHOT & LOCK ========== */
         .action-buttons {
             display: flex;
@@ -743,7 +771,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT -->
+        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT (COM SEEK) -->
         <!-- ============================================================ -->
         <div id="tab2" class="tab-content">
             <div class="media-container">
@@ -766,6 +794,15 @@
                         <button class="media-btn" onclick="mediaControl('next')" title="Próxima">
                             <i class="fas fa-forward"></i>
                         </button>
+                    </div>
+                    <!-- SEEK SLIDER -->
+                    <div class="media-timeline mt-2 w-full max-w-[300px] mx-auto px-1">
+                        <div class="flex items-center gap-2">
+                            <span id="media-current-time" class="text-[0.5rem] text-zinc-500 min-w-[2.8rem] text-right font-mono">0:00</span>
+                            <input id="media-seek-slider" type="range" min="0" max="100" value="0"
+                                   class="flex-1">
+                            <span id="media-duration" class="text-[0.5rem] text-zinc-500 min-w-[2.8rem] font-mono">0:00</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1041,6 +1078,9 @@
         // FUNÇÕES DE MÍDIA (playerctl)
         // ================================================================
 
+        let isSeeking = false;
+        let mediaPosInterval = null;
+
         function fetchMedia() {
             fetch("/media")
                 .then((res) => {
@@ -1049,6 +1089,7 @@
                 })
                 .then((data) => {
                     updateMediaUI(data);
+                    fetchMediaPosition(); // Atualiza posição inicial
                 })
                 .catch((err) => {
                     console.error("Erro ao buscar mídia:", err);
@@ -1087,6 +1128,19 @@
             } else {
                 artEl.innerHTML = `<div class="placeholder">no cover</div>`;
             }
+
+            // Gerenciar intervalo de atualização da posição
+            if (mediaPosInterval) {
+                clearInterval(mediaPosInterval);
+                mediaPosInterval = null;
+            }
+            // Atualiza a posição a cada 1s apenas se estiver tocando
+            if (data.status === "Playing") {
+                mediaPosInterval = setInterval(fetchMediaPosition, 1000);
+            } else {
+                // Atualiza uma vez para mostrar a posição atual (pausada/parada)
+                fetchMediaPosition();
+            }
         }
 
         function mediaControl(action) {
@@ -1103,6 +1157,85 @@
                     console.error("Erro no controle de mídia:", err);
                 });
         }
+
+        // ================================================================
+        // FUNÇÕES DE SEEK / TIMELINE
+        // ================================================================
+
+        function fetchMediaPosition() {
+            fetch("/media/position")
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.error) {
+                        console.warn("Erro ao buscar posição:", data.error);
+                        return;
+                    }
+                    const slider = document.getElementById("media-seek-slider");
+                    const currentTime = document.getElementById("media-current-time");
+                    const durationEl = document.getElementById("media-duration");
+
+                    if (data.duration > 0) {
+                        const pct = Math.min(100, (data.position / data.duration) * 100);
+                        if (!isSeeking) {
+                            slider.value = pct;
+                        }
+                        currentTime.textContent = formatTime(data.position);
+                        durationEl.textContent = formatTime(data.duration);
+                    } else {
+                        slider.value = 0;
+                        currentTime.textContent = "0:00";
+                        durationEl.textContent = "0:00";
+                    }
+                })
+                .catch((err) => console.error("Erro ao buscar posição:", err));
+        }
+
+        function formatTime(seconds) {
+            if (!seconds || seconds < 0) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ":" + (s < 10 ? "0" : "") + s;
+        }
+
+        // Inicialização do slider de seek
+        document.addEventListener("DOMContentLoaded", function () {
+            const seekSlider = document.getElementById("media-seek-slider");
+            if (seekSlider) {
+                seekSlider.addEventListener("pointerdown", () => {
+                    isSeeking = true;
+                });
+                seekSlider.addEventListener("input", function () {
+                    // Atualiza o tempo enquanto arrasta
+                    const duration = parseFloat(document.getElementById("media-duration").textContent.replace(":", "."));
+                    if (duration > 0) {
+                        const pct = parseFloat(this.value) / 100;
+                        const pos = pct * duration;
+                        document.getElementById("media-current-time").textContent = formatTime(pos);
+                    }
+                });
+                seekSlider.addEventListener("change", function () {
+                    isSeeking = false;
+                    const duration = parseFloat(document.getElementById("media-duration").textContent.replace(":", "."));
+                    if (duration > 0) {
+                        const pos = (parseFloat(this.value) / 100) * duration;
+                        fetch("/media/seek", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ position: pos })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                fetchMediaPosition();
+                            } else {
+                                console.error("Erro ao buscar:", data.error);
+                            }
+                        })
+                        .catch(err => console.error("Erro ao enviar seek:", err));
+                    }
+                });
+            }
+        });
 
         // ================================================================
         // LOCK SCREEN
@@ -1339,14 +1472,12 @@
                     }
                     count.textContent = windows.length;
 
-                    // Se não houver elementos, criar do zero
                     if (windowsData.length === 0) {
                         renderWindows(container, windows);
                         windowsData = windows;
                         return;
                     }
 
-                    // Atualizar apenas o que mudou
                     updateWindows(container, windows);
                     windowsData = windows;
                 })
@@ -1378,7 +1509,6 @@
 
         function updateWindows(container, windows) {
             const items = container.querySelectorAll('.window-item');
-            // Se o número mudou, renderizar tudo novamente
             if (items.length !== windows.length) {
                 renderWindows(container, windows);
                 return;
@@ -1387,19 +1517,14 @@
             items.forEach((item, index) => {
                 const w = windows[index];
                 if (!w) return;
-                // Atualizar título
                 const titleEl = item.querySelector('.win-title');
                 if (titleEl) titleEl.textContent = w.title || w.class || "Sem título";
-                // Atualizar foco
                 item.classList.toggle('focused', w.focused);
-                // Atualizar workspace exibido
                 const wsSpan = item.querySelector('.win-ws');
                 if (wsSpan) wsSpan.textContent = 'WS ' + (w.workspace !== null ? w.workspace : '?');
-                // Atualizar atributos (address)
                 item.dataset.address = w.address;
                 const buttons = item.querySelectorAll('[data-address]');
                 buttons.forEach(btn => btn.dataset.address = w.address);
-                // NÃO ALTERAR O SELECT
             });
         }
 
