@@ -298,9 +298,18 @@ def focus_window():
 @app.route('/window/move', methods=['POST'])
 def move_window():
     address = request.json.get('address')
-    workspace = request.json.get('workspace')
-    if not address or workspace is None:
-        return jsonify({'error': 'address and workspace required'}), 400
+    workspace_raw = request.json.get('workspace')
+    if not address:
+        return jsonify({'error': 'address required'}), 400
+    if workspace_raw is None:
+        return jsonify({'error': 'workspace required'}), 400
+    try:
+        workspace = int(workspace_raw)
+    except ValueError:
+        return jsonify({'error': 'invalid workspace number'}), 400
+    if workspace < 1 or workspace > 10:
+        return jsonify({'error': 'workspace must be between 1 and 10'}), 400
+
     try:
         subprocess.run(
             ['hyprctl', 'dispatch', 'movetoworkspace', str(workspace), f'address:{address}'],

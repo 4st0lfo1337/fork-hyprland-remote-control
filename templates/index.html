@@ -60,8 +60,8 @@
 
         .wired-card {
             width: 100%;
-            height: 100vh; /* fallback */
-            height: 100dvh; /* modern */
+            height: 100vh;
+            height: 100dvh;
             max-height: 100dvh;
             position: relative;
             padding: 0.8rem 0.8rem 0.4rem;
@@ -108,7 +108,6 @@
             pointer-events: none;
         }
 
-        /* Borda decorativa – fixa, não corta */
         .wired-card::after {
             content: "";
             position: absolute;
@@ -604,6 +603,7 @@
             display: flex;
             gap: 0.3rem;
             flex-shrink: 0;
+            align-items: center;
         }
         .window-item .win-actions button {
             background: transparent;
@@ -623,18 +623,32 @@
             background: rgba(206,118,136,0.08);
             border-left: 2px solid var(--red);
         }
-        .window-item .win-move-input {
-            width: 28px;
+        .window-item .win-move-select {
             background: #1a1a1a;
             border: 1px solid var(--line);
             color: var(--cream);
             font-size: 0.5rem;
-            padding: 0.05rem 0.1rem;
-            text-align: center;
-        }
-        .window-item .win-move-input:focus {
+            padding: 0.05rem 0.15rem;
+            border-radius: 0;
+            width: 2.8rem;
+            height: 1.6rem;
             outline: none;
+            appearance: auto;
+        }
+        .window-item .win-move-select:focus {
             border-color: var(--red);
+        }
+        .window-item .win-move-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.1rem 0.2rem;
+            font-size: 0.6rem;
+            transition: 0.15s;
+        }
+        .window-item .win-move-btn:hover {
+            color: var(--red);
         }
 
         /* ========== SCROLLBARS ========== */
@@ -831,7 +845,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 5: JANELAS -->
+        <!-- ABA 5: JANELAS (CORRIGIDA) -->
         <!-- ============================================================ -->
         <div id="tab5" class="tab-content">
             <div class="sys-card flex-1 min-h-0 flex flex-col">
@@ -1305,10 +1319,11 @@
         });
 
         // ================================================================
-        // FUNÇÕES DE JANELAS
+        // FUNÇÕES DE JANELAS (CORRIGIDA – evento único e select independente)
         // ================================================================
 
         let winInterval = null;
+        let windowsData = []; // cache para diff
 
         function fetchWindows() {
             fetch("/windows")
@@ -1319,38 +1334,103 @@
                     if (!windows || windows.length === 0) {
                         container.innerHTML = '<div class="text-zinc-600 text-[0.45rem] text-center py-2">Nenhuma janela aberta</div>';
                         count.textContent = "0";
+                        windowsData = [];
                         return;
                     }
                     count.textContent = windows.length;
-                    let html = "";
-                    windows.forEach((w) => {
-                        const focusedClass = w.focused ? "focused" : "";
-                        const ws = w.workspace !== null ? w.workspace : "?";
-                        html += `
-                            <div class="window-item ${focusedClass}">
-                                <span class="win-title" title="${w.title}">${w.title || w.class || "Sem título"}</span>
-                                <span class="win-ws">WS ${ws}</span>
-                                <div class="win-actions">
-                                    <input type="number" min="1" max="10" value="${ws}" class="win-move-input" data-address="${w.address}">
-                                    <button class="focus-btn" onclick="focusWindow('${w.address}')" title="Focar"><i class="fas fa-eye"></i></button>
-                                    <button onclick="moveWindow('${w.address}')" title="Mover"><i class="fas fa-arrow-right"></i></button>
-                                    <button class="kill-btn" onclick="killWindow('${w.address}')" title="Fechar"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                    container.querySelectorAll(".win-move-input").forEach((input) => {
-                        input.addEventListener("keydown", function(e) {
-                            if (e.key === "Enter") {
-                                const address = this.dataset.address;
-                                moveWindow(address);
-                            }
-                        });
-                    });
+
+                    // Se não houver elementos, criar do zero
+                    if (windowsData.length === 0) {
+                        renderWindows(container, windows);
+                        windowsData = windows;
+                        return;
+                    }
+
+                    // Atualizar apenas o que mudou
+                    updateWindows(container, windows);
+                    windowsData = windows;
                 })
                 .catch((err) => console.error("Erro ao buscar janelas:", err));
         }
+
+        function renderWindows(container, windows) {
+            let html = "";
+            windows.forEach((w) => {
+                const focusedClass = w.focused ? "focused" : "";
+                const ws = w.workspace !== null ? w.workspace : "?";
+                html += `
+                    <div class="window-item ${focusedClass}" data-address="${w.address}">
+                        <span class="win-title" title="${w.title}">${w.title || w.class || "Sem título"}</span>
+                        <span class="win-ws">WS ${ws}</span>
+                        <div class="win-actions">
+                            <select class="win-move-select" data-address="${w.address}">
+                                ${Array.from({length: 10}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
+                            </select>
+                            <button class="win-move-btn" data-address="${w.address}" title="Mover"><i class="fas fa-arrow-right"></i></button>
+                            <button class="focus-btn" data-address="${w.address}" title="Focar"><i class="fas fa-eye"></i></button>
+                            <button class="kill-btn" data-address="${w.address}" title="Fechar"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateWindows(container, windows) {
+            const items = container.querySelectorAll('.window-item');
+            // Se o número mudou, renderizar tudo novamente
+            if (items.length !== windows.length) {
+                renderWindows(container, windows);
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const w = windows[index];
+                if (!w) return;
+                // Atualizar título
+                const titleEl = item.querySelector('.win-title');
+                if (titleEl) titleEl.textContent = w.title || w.class || "Sem título";
+                // Atualizar foco
+                item.classList.toggle('focused', w.focused);
+                // Atualizar workspace exibido
+                const wsSpan = item.querySelector('.win-ws');
+                if (wsSpan) wsSpan.textContent = 'WS ' + (w.workspace !== null ? w.workspace : '?');
+                // Atualizar atributos (address)
+                item.dataset.address = w.address;
+                const buttons = item.querySelectorAll('[data-address]');
+                buttons.forEach(btn => btn.dataset.address = w.address);
+                // NÃO ALTERAR O SELECT
+            });
+        }
+
+        // ================================================================
+        // EVENTO ÚNICO PARA A ABA JANELAS (delegação)
+        // ================================================================
+        document.getElementById('windows-list').addEventListener('click', function(e) {
+            const target = e.target.closest('button');
+            if (!target) return;
+            const address = target.dataset.address;
+            if (!address) return;
+
+            const item = target.closest('.window-item');
+            const select = item ? item.querySelector('.win-move-select') : null;
+
+            if (target.classList.contains('win-move-btn')) {
+                if (select) {
+                    const workspace = parseInt(select.value);
+                    if (!workspace || workspace < 1 || workspace > 10) return;
+                    moveWindow(address, workspace);
+                }
+            } else if (target.classList.contains('focus-btn')) {
+                focusWindow(address);
+            } else if (target.classList.contains('kill-btn')) {
+                killWindow(address);
+            }
+        });
+
+        // ================================================================
+        // AÇÕES DAS JANELAS
+        // ================================================================
 
         function focusWindow(address) {
             fetch("/window/focus", {
@@ -1368,10 +1448,7 @@
                 .catch((err) => console.error("Erro ao focar janela:", err));
         }
 
-        function moveWindow(address) {
-            const input = document.querySelector(`.win-move-input[data-address="${address}"]`);
-            if (!input) return;
-            const workspace = parseInt(input.value);
+        function moveWindow(address, workspace) {
             if (!workspace || workspace < 1 || workspace > 10) {
                 alert("Workspace inválido (1-10)");
                 return;
@@ -1441,4 +1518,3 @@
 
 </body>
 </html>
-
