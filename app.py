@@ -569,12 +569,22 @@ def mic_set_source():
 # ---------- COMANDOS PRÉ-DEFINIDOS (TERMINAL) ----------
 
 # Lista de comandos pré-definidos (removidos: update, network_restart, clear_cache)
+# Adicionados: neofetch, lscpu, lsblk, ss -tulpn, hyprctl monitors, hyprctl clients,
+# hyprctl activewindow, systemctl --user restart waybar
 COMMANDS = [
     {"id": "gpu_info", "label": "Info GPU", "cmd": "nvidia-smi", "confirm": False},
     {"id": "hyprland_reload", "label": "Reiniciar Hyprland", "cmd": "hyprctl reload", "confirm": False},
     {"id": "uptime", "label": "Uptime", "cmd": "uptime", "confirm": False},
     {"id": "free", "label": "Memória livre", "cmd": "free -h", "confirm": False},
     {"id": "df", "label": "Espaço em disco", "cmd": "df -h", "confirm": False},
+    {"id": "neofetch", "label": "Info sistema", "cmd": "neofetch", "confirm": False},
+    {"id": "lscpu", "label": "CPU info", "cmd": "lscpu", "confirm": False},
+    {"id": "lsblk", "label": "Discos/partições", "cmd": "lsblk", "confirm": False},
+    {"id": "ss_tulpn", "label": "Portas abertas", "cmd": "ss -tulpn", "confirm": False},
+    {"id": "hyprctl_monitors", "label": "Monitores (hyprctl)", "cmd": "hyprctl monitors", "confirm": False},
+    {"id": "hyprctl_clients", "label": "Clients (hyprctl)", "cmd": "hyprctl clients", "confirm": False},
+    {"id": "hyprctl_activewindow", "label": "Janela ativa", "cmd": "hyprctl activewindow", "confirm": False},
+    {"id": "restart_waybar", "label": "Reiniciar Waybar", "cmd": "systemctl --user restart waybar", "confirm": True},
 ]
 
 @app.route('/commands/list', methods=['GET'])
