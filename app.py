@@ -319,5 +319,98 @@ def system_stats():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------- MICROPHONE ----------
+
+@app.route('/mic/status')
+def mic_status():
+    """Retorna status do microfone padrão: volume e mute."""
+    try:
+        # Volume
+        result = subprocess.run(
+            ['pactl', 'get-source-volume', '@DEFAULT_SOURCE@'],
+            capture_output=True, text=True, check=True
+        )
+        match = re.search(r'(\d+)%', result.stdout)
+        volume = int(match.group(1)) if match else 0
+
+        # Mute
+        mute_result = subprocess.run(
+            ['pactl', 'get-source-mute', '@DEFAULT_SOURCE@'],
+            capture_output=True, text=True, check=True
+        )
+        muted = 'yes' in mute_result.stdout.lower()
+
+        return jsonify({'volume': volume, 'muted': muted}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/mic/volume', methods=['POST'])
+def mic_volume():
+    """Ajusta o volume do microfone (0-150%)."""
+    data = request.json
+    pct = data.get('pct')
+    if pct is None:
+        return jsonify({'error': 'pct required'}), 400
+    try:
+        subprocess.run(
+            ['pactl', 'set-source-volume', '@DEFAULT_SOURCE@', f'{int(pct)}%'],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/mic/mute', methods=['POST'])
+def mic_mute():
+    """Alterna o mute do microfone."""
+    try:
+        subprocess.run(
+            ['pactl', 'set-source-mute', '@DEFAULT_SOURCE@', 'toggle'],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/mic/sources')
+def mic_sources():
+    """Lista todas as fontes de áudio disponíveis (entradas)."""
+    try:
+        result = subprocess.run(
+            ['pactl', 'list', 'sources', 'short'],
+            capture_output=True, text=True, check=True
+        )
+        sources = []
+        for line in result.stdout.strip().splitlines():
+            parts = line.split('\t')
+            if len(parts) >= 2:
+                sources.append({
+                    'id': parts[0],
+                    'name': parts[1]
+                })
+        return jsonify(sources), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/mic/source', methods=['POST'])
+def mic_set_source():
+    """Define a fonte padrão."""
+    source_id = request.json.get('id')
+    if not source_id:
+        return jsonify({'error': 'source id required'}), 400
+    try:
+        subprocess.run(
+            ['pactl', 'set-default-source', source_id],
+            check=True
+        )
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

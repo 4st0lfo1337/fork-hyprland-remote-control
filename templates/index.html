@@ -166,6 +166,13 @@
             display: flex;
             border-bottom: 1px solid var(--line);
             margin-bottom: 0.8rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar {
+            display: none;
         }
         .tab-btn {
             background: transparent;
@@ -179,8 +186,8 @@
             cursor: pointer;
             transition: 0.15s ease;
             border-bottom: 2px solid transparent;
-            flex: 1;
-            text-align: center;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .tab-btn:hover {
             color: var(--cream);
@@ -550,6 +557,14 @@
             background: var(--red-dark);
         }
 
+        /* ========== MICROFONE ========== */
+        .mic-slider {
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            accent-color: var(--red);
+        }
+
         /* ========== RESPONSIVE ========== */
         @media (max-width: 480px) {
             .workspace-grid {
@@ -589,7 +604,7 @@
             }
             .tab-btn {
                 font-size: 0.5rem;
-                padding: 0.3rem 0.2rem;
+                padding: 0.3rem 0.4rem;
             }
             .title {
                 font-size: 0.75rem;
@@ -661,6 +676,7 @@
             <button class="tab-btn active" data-tab="tab1">Workspaces</button>
             <button class="tab-btn" data-tab="tab2">Mídia & Volume</button>
             <button class="tab-btn" data-tab="tab3">Sistema</button>
+            <button class="tab-btn" data-tab="tab4">Microfone</button>
         </div>
 
         <!-- ============================================================ -->
@@ -805,6 +821,37 @@
                 <div class="sys-card col-span-2">
                     <div class="text-[0.55rem] text-zinc-500 mb-1">Processos (top por memória)</div>
                     <div id="sys-process-list" class="sys-process-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ABA 4: MICROFONE -->
+        <!-- ============================================================ -->
+        <div id="tab4" class="tab-content">
+            <div class="space-y-3">
+                <!-- Status + Mute -->
+                <div class="sys-card">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm">🎤 Microfone</span>
+                        <button id="mic-mute-btn" class="volume-btn" onclick="toggleMicMute()">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span id="mic-volume-display" class="text-sm min-w-[3rem]">--%</span>
+                        <input id="mic-slider" type="range" min="0" max="150" value="0"
+                               class="flex-1 mic-slider">
+                    </div>
+                    <div class="text-[0.55rem] text-zinc-500 mt-1">
+                        <span id="mic-status-text">--</span>
+                    </div>
+                </div>
+
+                <!-- Dispositivos de entrada -->
+                <div class="sys-card">
+                    <div class="text-[0.55rem] text-zinc-500 mb-1">Dispositivos de entrada</div>
+                    <div id="mic-source-list" class="sys-process-list"></div>
                 </div>
             </div>
         </div>
@@ -1137,6 +1184,113 @@
         }
 
         // ================================================================
+        // FUNÇÕES DE MICROFONE
+        // ================================================================
+
+        let micInterval = null;
+        let isMicDragging = false;
+
+        function fetchMicStatus() {
+            fetch("/mic/status")
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.error) return;
+                    const display = document.getElementById("mic-volume-display");
+                    const slider = document.getElementById("mic-slider");
+                    if (!isMicDragging) {
+                        display.textContent = data.muted ? "MUTED" : data.volume + "%";
+                        slider.value = data.volume;
+                    }
+                    const muteBtn = document.getElementById("mic-mute-btn");
+                    const icon = muteBtn.querySelector("i");
+                    if (data.muted) {
+                        icon.className = "fas fa-microphone-slash";
+                        muteBtn.style.color = "#ff5252";
+                        document.getElementById("mic-status-text").textContent = "🔇 MUTADO";
+                    } else {
+                        icon.className = "fas fa-microphone";
+                        muteBtn.style.color = "";
+                        document.getElementById("mic-status-text").textContent = "🔊 Ativo (" + data.volume + "%)";
+                    }
+                })
+                .catch((err) => console.error("Erro ao buscar status do microfone:", err));
+        }
+
+        function toggleMicMute() {
+            fetch("/mic/mute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.ok) fetchMicStatus();
+                })
+                .catch((err) => console.error("Erro ao mutar microfone:", err));
+        }
+
+        function fetchMicSources() {
+            fetch("/mic/sources")
+                .then((res) => res.json())
+                .then((sources) => {
+                    const list = document.getElementById("mic-source-list");
+                    if (!sources || !sources.length) {
+                        list.innerHTML = '<span class="text-zinc-600">Nenhuma fonte encontrada</span>';
+                        return;
+                    }
+                    list.innerHTML = sources
+                        .map(
+                            (s) =>
+                                `<div class="flex justify-between border-b border-zinc-800 py-0.5 cursor-pointer hover:bg-zinc-800 source-item" data-id="${s.id}">
+                            <span class="truncate">${s.name}</span>
+                            <span class="text-[0.5rem] text-zinc-500">definir</span>
+                        </div>`
+                        )
+                        .join("");
+                    list.querySelectorAll(".source-item").forEach((el) => {
+                        el.addEventListener("click", function () {
+                            const id = this.dataset.id;
+                            fetch("/mic/source", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ id: id }),
+                            })
+                                .then((res) => res.json())
+                                .then((data) => {
+                                    if (data.ok) {
+                                        fetchMicSources();
+                                        fetchMicStatus();
+                                    }
+                                });
+                        });
+                    });
+                })
+                .catch((err) => console.error("Erro ao listar fontes:", err));
+        }
+
+        // Inicialização do slider
+        document.addEventListener("DOMContentLoaded", function () {
+            const micSlider = document.getElementById("mic-slider");
+            if (micSlider) {
+                micSlider.addEventListener("pointerdown", () => { isMicDragging = true; });
+                micSlider.addEventListener("input", function () {
+                    document.getElementById("mic-volume-display").textContent = this.value + "%";
+                });
+                micSlider.addEventListener("change", function () {
+                    isMicDragging = false;
+                    fetch("/mic/volume", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ pct: parseInt(this.value) }),
+                    })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            if (data.ok) fetchMicStatus();
+                        });
+                });
+            }
+        });
+
+        // ================================================================
         // INICIALIZAÇÃO
         // ================================================================
 
@@ -1145,8 +1299,13 @@
             getVolume();
             fetchMedia();
             fetchSystemStats();
+            fetchMicStatus();
+            fetchMicSources();
+
             if (sysInterval) clearInterval(sysInterval);
             sysInterval = setInterval(fetchSystemStats, 2000);
+            if (micInterval) clearInterval(micInterval);
+            micInterval = setInterval(fetchMicStatus, 2000);
         }
 
         document.addEventListener("DOMContentLoaded", init);
@@ -1161,4 +1320,3 @@
 
 </body>
 </html>
-

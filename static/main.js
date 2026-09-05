@@ -164,7 +164,6 @@ function fetchMedia() {
         })
         .catch((err) => {
             console.error("Erro ao buscar mídia:", err);
-            // Fallback: mostrar dados vazios
             updateMediaUI({
                 title: "Nenhuma mídia",
                 artist: "-",
@@ -181,24 +180,20 @@ function updateMediaUI(data) {
     const artEl = document.getElementById("media-art");
     const playBtn = document.getElementById("media-play-btn");
 
-    // Título e artista
     titleEl.textContent = data.title || "Nenhuma mídia";
     artistEl.textContent = data.artist || "-";
 
-    // Status
     let statusText = "⏹ parado";
     if (data.status === "Playing") statusText = "▶ tocando";
     else if (data.status === "Paused") statusText = "⏸ pausado";
     statusEl.textContent = statusText;
 
-    // Ícone do play/pause
     if (data.status === "Playing") {
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
     } else {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 
-    // Arte (capa)
     if (data.art_url && data.art_url.length > 0) {
         artEl.innerHTML =
             `<img src="${data.art_url}" alt="capa" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>no cover</div>'" />`;
@@ -256,21 +251,196 @@ function lockScreen() {
 
 document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
-        // Remove active de todos os botões e conteúdos
         document.querySelectorAll(".tab-btn").forEach((b) =>
             b.classList.remove("active")
         );
         document.querySelectorAll(".tab-content").forEach((c) =>
             c.classList.remove("active")
         );
-
-        // Ativa o botão clicado
         this.classList.add("active");
-
-        // Ativa o conteúdo correspondente
         const tabId = this.dataset.tab;
         document.getElementById(tabId).classList.add("active");
     });
+});
+
+// ================================================================
+// FUNÇÕES DE SISTEMA
+// ================================================================
+
+let sysInterval = null;
+
+function fetchSystemStats() {
+    fetch("/system/stats")
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) {
+                document.getElementById("sys-cpu-pct").textContent = "--%";
+                document.getElementById("sys-ram-pct").textContent = "--%";
+                return;
+            }
+            document.getElementById("sys-cpu-pct").textContent =
+                data.cpu.percent + "%";
+            document.getElementById("sys-cpu-bar").style.width =
+                data.cpu.percent + "%";
+            document.getElementById("sys-cpu-temp").textContent =
+                data.cpu.temp !== null ? data.cpu.temp + "°C" : "--°C";
+            document.getElementById("sys-cpu-freq").textContent =
+                data.cpu.freq !== null ? data.cpu.freq + " GHz" : "-- GHz";
+
+            document.getElementById("sys-ram-pct").textContent =
+                data.ram.percent + "%";
+            document.getElementById("sys-ram-bar").style.width =
+                data.ram.percent + "%";
+            document.getElementById("sys-ram-used").textContent =
+                data.ram.used + " / " + data.ram.total + " GB";
+
+            const gpuContainer = document.getElementById("gpu-container");
+            if (data.gpu) {
+                gpuContainer.style.display = "block";
+                document.getElementById("sys-gpu-pct").textContent =
+                    data.gpu.util + "%";
+                document.getElementById("sys-gpu-bar").style.width =
+                    data.gpu.util + "%";
+                document.getElementById("sys-gpu-vram").textContent = "VRAM " +
+                    data.gpu.vram_used + " / " + data.gpu.vram_total + " MB";
+                document.getElementById("sys-gpu-temp").textContent =
+                    data.gpu.temp + "°C";
+            } else {
+                gpuContainer.style.display = "none";
+            }
+
+            const list = document.getElementById("sys-process-list");
+            if (data.processes && data.processes.length) {
+                list.innerHTML = data.processes
+                    .map(
+                        (p) =>
+                            `<div class="flex justify-between border-b border-zinc-800 py-0.5">
+                                <span class="truncate max-w-[60%]">${p.name}</span>
+                                <span>${p.mem}% mem · ${p.cpu}% cpu</span>
+                            </div>`,
+                    )
+                    .join("");
+            } else {
+                list.innerHTML =
+                    '<span class="text-zinc-600">Nenhum processo</span>';
+            }
+        })
+        .catch((err) => console.error("Erro ao buscar stats:", err));
+}
+
+// ================================================================
+// FUNÇÕES DE MICROFONE
+// ================================================================
+
+let micInterval = null;
+let isMicDragging = false;
+
+function fetchMicStatus() {
+    fetch("/mic/status")
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.error) return;
+            const display = document.getElementById("mic-volume-display");
+            const slider = document.getElementById("mic-slider");
+            if (!isMicDragging) {
+                display.textContent = data.muted ? "MUTED" : data.volume + "%";
+                slider.value = data.volume;
+            }
+            const muteBtn = document.getElementById("mic-mute-btn");
+            const icon = muteBtn.querySelector("i");
+            if (data.muted) {
+                icon.className = "fas fa-microphone-slash";
+                muteBtn.style.color = "#ff5252";
+                document.getElementById("mic-status-text").textContent =
+                    "🔇 MUTADO";
+            } else {
+                icon.className = "fas fa-microphone";
+                muteBtn.style.color = "";
+                document.getElementById("mic-status-text").textContent =
+                    "🔊 Ativo (" + data.volume + "%)";
+            }
+        })
+        .catch((err) =>
+            console.error("Erro ao buscar status do microfone:", err)
+        );
+}
+
+function toggleMicMute() {
+    fetch("/mic/mute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.ok) fetchMicStatus();
+        })
+        .catch((err) => console.error("Erro ao mutar microfone:", err));
+}
+
+function fetchMicSources() {
+    fetch("/mic/sources")
+        .then((res) => res.json())
+        .then((sources) => {
+            const list = document.getElementById("mic-source-list");
+            if (!sources || !sources.length) {
+                list.innerHTML =
+                    '<span class="text-zinc-600">Nenhuma fonte encontrada</span>';
+                return;
+            }
+            list.innerHTML = sources
+                .map(
+                    (s) =>
+                        `<div class="flex justify-between border-b border-zinc-800 py-0.5 cursor-pointer hover:bg-zinc-800 source-item" data-id="${s.id}">
+                            <span class="truncate">${s.name}</span>
+                            <span class="text-[0.5rem] text-zinc-500">definir</span>
+                        </div>`,
+                )
+                .join("");
+            list.querySelectorAll(".source-item").forEach((el) => {
+                el.addEventListener("click", function () {
+                    const id = this.dataset.id;
+                    fetch("/mic/source", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: id }),
+                    })
+                        .then((res) => res.json())
+                        .then((data) => {
+                            if (data.ok) {
+                                fetchMicSources();
+                                fetchMicStatus();
+                            }
+                        });
+                });
+            });
+        })
+        .catch((err) => console.error("Erro ao listar fontes:", err));
+}
+
+// Inicialização do slider
+document.addEventListener("DOMContentLoaded", function () {
+    const micSlider = document.getElementById("mic-slider");
+    if (micSlider) {
+        micSlider.addEventListener("pointerdown", () => {
+            isMicDragging = true;
+        });
+        micSlider.addEventListener("input", function () {
+            document.getElementById("mic-volume-display").textContent =
+                this.value + "%";
+        });
+        micSlider.addEventListener("change", function () {
+            isMicDragging = false;
+            fetch("/mic/volume", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pct: parseInt(this.value) }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.ok) fetchMicStatus();
+                });
+        });
+    }
 });
 
 // ================================================================
@@ -281,6 +451,14 @@ function init() {
     fetchMonitors();
     getVolume();
     fetchMedia();
+    fetchSystemStats();
+    fetchMicStatus();
+    fetchMicSources();
+
+    if (sysInterval) clearInterval(sysInterval);
+    sysInterval = setInterval(fetchSystemStats, 2000);
+    if (micInterval) clearInterval(micInterval);
+    micInterval = setInterval(fetchMicStatus, 2000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
