@@ -5,6 +5,7 @@ import os
 import re
 import json
 from urllib.parse import unquote
+import psutil
 
 app = Flask(__name__)
 
@@ -238,6 +239,83 @@ def control_media():
         # Retorna o estado atualizado
         return get_media()
     except subprocess.CalledProcessError as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ---------- SYSTEM MONITOR ----------
+
+@app.route('/system/stats')
+def system_stats():
+    """Retorna estatísticas do sistema: CPU, RAM, GPU (NVIDIA) e top processos."""
+    try:
+        # CPU
+        cpu_percent = psutil.cpu_percent(interval=0.5)
+        cpu_freq = psutil.cpu_freq()
+        cpu_temp = None
+        try:
+            temps = psutil.sensors_temperatures()
+            if 'coretemp' in temps:
+                cpu_temp = temps['coretemp'][0].current
+            elif 'k10temp' in temps:
+                cpu_temp = temps['k10temp'][0].current
+        except (AttributeError, KeyError):
+            pass
+
+        # RAM
+        mem = psutil.virtual_memory()
+        mem_used = round(mem.used / (1024**3), 1)
+        mem_total = round(mem.total / (1024**3), 1)
+        mem_percent = mem.percent
+
+        # GPU (NVIDIA)
+        gpu = None
+        try:
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=utilization.gpu,memory.used,memory.total,temperature.gpu',
+                 '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, check=True, timeout=2
+            )
+            parts = result.stdout.strip().split(',')
+            if len(parts) >= 4:
+                gpu = {
+                    'util': float(parts[0].strip()),
+                    'vram_used': float(parts[1].strip()),
+                    'vram_total': float(parts[2].strip()),
+                    'temp': float(parts[3].strip())
+                }
+        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        # Top processos (por memória)
+        processes = []
+        for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+            try:
+                processes.append({
+                    'pid': p.info['pid'],
+                    'name': p.info['name'] or '?',
+                    'cpu': round(p.info['cpu_percent'] or 0, 1),
+                    'mem': round(p.info['memory_percent'] or 0, 1)
+                })
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        processes.sort(key=lambda x: x['mem'], reverse=True)
+        processes = processes[:10]
+
+        return jsonify({
+            'cpu': {
+                'percent': round(cpu_percent, 1),
+                'freq': round(cpu_freq.current / 1000, 2) if cpu_freq else None,
+                'temp': round(cpu_temp, 1) if cpu_temp else None
+            },
+            'ram': {
+                'used': mem_used,
+                'total': mem_total,
+                'percent': round(mem_percent, 1)
+            },
+            'gpu': gpu,
+            'processes': processes
+        })
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
