@@ -200,7 +200,6 @@ function updateMediaUI(data) {
 
     // Arte (capa)
     if (data.art_url && data.art_url.length > 0) {
-        // Se a URL for relativa (começa com /media/art) ou absoluta http, usa diretamente
         artEl.innerHTML =
             `<img src="${data.art_url}" alt="capa" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>no cover</div>'" />`;
     } else {
@@ -216,7 +215,6 @@ function mediaControl(action) {
     })
         .then((res) => res.json())
         .then((data) => {
-            // Atualiza a UI com os dados retornados
             updateMediaUI(data);
         })
         .catch((err) => {
@@ -253,6 +251,29 @@ function lockScreen() {
 }
 
 // ================================================================
+// TABS
+// ================================================================
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+        // Remove active de todos os botões e conteúdos
+        document.querySelectorAll(".tab-btn").forEach((b) =>
+            b.classList.remove("active")
+        );
+        document.querySelectorAll(".tab-content").forEach((c) =>
+            c.classList.remove("active")
+        );
+
+        // Ativa o botão clicado
+        this.classList.add("active");
+
+        // Ativa o conteúdo correspondente
+        const tabId = this.dataset.tab;
+        document.getElementById(tabId).classList.add("active");
+    });
+});
+
+// ================================================================
 // INICIALIZAÇÃO
 // ================================================================
 
@@ -270,3 +291,4 @@ setInterval(() => {
     getVolume();
     fetchMedia();
 }, 5000);
+
