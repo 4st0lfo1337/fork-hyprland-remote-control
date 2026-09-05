@@ -725,8 +725,8 @@
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
-            max-height: 120px;
-            min-height: 60px;
+            min-height: 100px;
+            max-height: 200px;
         }
         .cmd-output .error {
             color: #ff5252;
@@ -763,7 +763,7 @@
             .window-item .win-title { font-size: 0.55rem; }
             #screenshot-button, #lock-button { padding: 0.3rem 0.8rem !important; font-size: 0.6rem !important; }
             .cmd-btn { font-size: 0.5rem; padding: 0.3rem 0.2rem; }
-            .cmd-output { font-size: 0.5rem; max-height: 90px; min-height: 40px; }
+            .cmd-output { font-size: 0.5rem; min-height: 80px; max-height: 140px; }
         }
 
         @media (max-height: 600px) {
@@ -773,7 +773,7 @@
             .media-art { width: 100px; height: 100px; }
             .volume-controls { margin: 0.3rem 0; }
             .sys-process-list { max-height: 70px; }
-            .cmd-output { max-height: 70px; min-height: 30px; }
+            .cmd-output { min-height: 60px; max-height: 100px; }
         }
 
         @media (max-width: 400px) {
