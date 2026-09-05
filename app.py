@@ -3,6 +3,7 @@ import subprocess
 import random
 import os
 import re
+import json
 
 app = Flask(__name__)
 
@@ -12,8 +13,11 @@ def hello_world():
     return render_template('index.html')
 
 
+# ---------- WORKSPACES ----------
+
 @app.route('/workspace')
 def current_workspace():
+    """Retorna apenas o ID do workspace ativo (focado)."""
     try:
         result = subprocess.run(
             ['hyprctl', 'activeworkspace', '-j'],
@@ -21,16 +25,10 @@ def current_workspace():
             text=True,
             check=True
         )
-        result = subprocess.run(
-            ['jq', '.id'],
-            input=result.stdout,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        workspace_id = result.stdout.strip()
+        data = json.loads(result.stdout)
+        workspace_id = data.get('id')
         return jsonify({'workspace': workspace_id}), 200
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
@@ -49,12 +47,49 @@ def switch_workspace():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/monitors')
+def get_monitors():
+    """
+    Retorna informações de todos os monitores.
+    Exemplo de saída:
+    [
+        {
+            "name": "DP-1",
+            "workspace": 1,
+            "focused": true
+        },
+        ...
+    ]
+    """
+    try:
+        result = subprocess.run(
+            ['hyprctl', 'monitors', '-j'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        monitors = json.loads(result.stdout)
+        # Extrai apenas nome, workspace ativo e se está focado
+        output = []
+        for m in monitors:
+            output.append({
+                'name': m.get('name'),
+                'workspace': m.get('activeWorkspace', {}).get('id'),
+                'focused': m.get('focused', False)
+            })
+        return jsonify(output), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ---------- SCREENSHOT ----------
+
 @app.route('/screenshot/take', methods=['GET'])
 def take_screenshot():
     filename = None
     try:
         filename = f'/tmp/screenshot_{random.randint(1000, 9999)}.png'
-        command = f'hyprshot -m window -m active  --raw >> {filename}'
+        command = f'hyprshot -m window -m active --raw >> {filename}'
         os.system(command)
 
         with open(filename, 'rb') as f:
@@ -62,7 +97,7 @@ def take_screenshot():
         os.system(f'wl-copy < {filename}')
         return Response(image_data, mimetype='image/png')
 
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         if filename and os.path.exists(filename):
@@ -72,7 +107,7 @@ def take_screenshot():
                 pass
 
 
-# ========== NOVOS ENDPOINTS PARA CONTROLE DE VOLUME ==========
+# ---------- VOLUME ----------
 
 @app.route('/volume', methods=['GET'])
 def get_volume():
