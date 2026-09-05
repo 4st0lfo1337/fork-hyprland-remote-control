@@ -91,16 +91,22 @@ function switchWorkspace(workspaceId) {
 }
 
 // ================================================================
-// FUNÇÕES DE VOLUME
+// FUNÇÕES DE VOLUME (com slider)
 // ================================================================
+
+let isVolumeDragging = false;
 
 function getVolume() {
     fetch("/volume")
         .then((response) => response.json())
         .then((data) => {
-            const display = document.getElementById("volume-display");
             if (data.volume !== undefined) {
+                const display = document.getElementById("volume-display");
+                const slider = document.getElementById("volume-slider");
                 display.textContent = data.muted ? "MUTED" : data.volume + "%";
+                if (!isVolumeDragging) {
+                    slider.value = data.volume;
+                }
                 const muteIcon = document.querySelector("#vol-mute-btn i");
                 if (data.muted) {
                     muteIcon.className = "fas fa-volume-off";
@@ -112,11 +118,11 @@ function getVolume() {
         .catch((err) => console.error("Erro ao obter volume:", err));
 }
 
-function adjustVolume(action) {
+function setVolume(value) {
     fetch("/volume/control", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: action }),
+        body: JSON.stringify({ action: "set", value: parseInt(value) }),
     })
         .then((response) => response.json())
         .then((data) => {
@@ -138,7 +144,9 @@ function toggleMute() {
         .then((data) => {
             if (data.volume !== undefined) {
                 const display = document.getElementById("volume-display");
+                const slider = document.getElementById("volume-slider");
                 display.textContent = data.muted ? "MUTED" : data.volume + "%";
+                slider.value = data.volume;
                 const muteIcon = document.querySelector("#vol-mute-btn i");
                 if (data.muted) {
                     muteIcon.className = "fas fa-volume-off";
@@ -418,7 +426,7 @@ function fetchMicSources() {
         .catch((err) => console.error("Erro ao listar fontes:", err));
 }
 
-// Inicialização do slider
+// Inicialização do slider do microfone
 document.addEventListener("DOMContentLoaded", function () {
     const micSlider = document.getElementById("mic-slider");
     if (micSlider) {
@@ -440,6 +448,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then((data) => {
                     if (data.ok) fetchMicStatus();
                 });
+        });
+    }
+
+    // Inicialização do slider de volume
+    const volSlider = document.getElementById("volume-slider");
+    if (volSlider) {
+        volSlider.addEventListener("pointerdown", () => {
+            isVolumeDragging = true;
+        });
+        volSlider.addEventListener("input", function () {
+            document.getElementById("volume-display").textContent = this.value +
+                "%";
+        });
+        volSlider.addEventListener("change", function () {
+            isVolumeDragging = false;
+            setVolume(this.value);
         });
     }
 });
