@@ -566,5 +566,59 @@ def mic_set_source():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------- COMANDOS PRÉ-DEFINIDOS (TERMINAL) ----------
+
+# Lista de comandos pré-definidos
+COMMANDS = [
+    {"id": "update", "label": "Atualizar pacotes", "cmd": "sudo pacman -Syu", "confirm": True},
+    {"id": "gpu_info", "label": "Info GPU", "cmd": "nvidia-smi", "confirm": False},
+    {"id": "hyprland_reload", "label": "Reiniciar Hyprland", "cmd": "hyprctl reload", "confirm": False},
+    {"id": "network_restart", "label": "Reiniciar rede", "cmd": "systemctl restart NetworkManager", "confirm": True},
+    {"id": "uptime", "label": "Uptime", "cmd": "uptime", "confirm": False},
+    {"id": "free", "label": "Memória livre", "cmd": "free -h", "confirm": False},
+    {"id": "df", "label": "Espaço em disco", "cmd": "df -h", "confirm": False},
+    {"id": "clear_cache", "label": "Limpar cache (pacman)", "cmd": "sudo pacman -Sc", "confirm": True},
+]
+
+@app.route('/commands/list', methods=['GET'])
+def list_commands():
+    """Retorna a lista de comandos pré-definidos (apenas id e label)."""
+    return jsonify([{"id": c["id"], "label": c["label"], "confirm": c.get("confirm", False)} for c in COMMANDS])
+
+
+@app.route('/exec', methods=['POST'])
+def exec_command():
+    """Executa um comando pré-definido pelo ID."""
+    data = request.json
+    cmd_id = data.get('id')
+    if not cmd_id:
+        return jsonify({'error': 'ID do comando é obrigatório'}), 400
+
+    # Busca o comando na lista
+    command = next((c for c in COMMANDS if c["id"] == cmd_id), None)
+    if not command:
+        return jsonify({'error': 'Comando não encontrado'}), 404
+
+    try:
+        # Executa o comando com timeout de 30 segundos
+        result = subprocess.run(
+            command["cmd"],
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        output = result.stdout + result.stderr
+        return jsonify({
+            'ok': result.returncode == 0,
+            'output': output.strip() or '(sem saída)',
+            'code': result.returncode
+        })
+    except subprocess.TimeoutExpired:
+        return jsonify({'error': 'Timeout (30s)'}), 408
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

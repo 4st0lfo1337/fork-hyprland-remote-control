@@ -688,6 +688,53 @@
             color: var(--red);
         }
 
+        /* ========== TERMINAL ========== */
+        .cmd-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        .cmd-btn {
+            background: #0b0b0b;
+            border: 1px solid var(--line);
+            color: var(--cream);
+            padding: 0.5rem 0.3rem;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: 0.15s ease;
+            text-align: center;
+            border-radius: 0;
+        }
+        .cmd-btn:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(206,118,136,0.035);
+        }
+        .cmd-btn:active {
+            transform: scale(0.96);
+        }
+        .cmd-output {
+            flex: 1;
+            background: #050505;
+            border: 1px solid var(--line);
+            padding: 0.4rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.55rem;
+            color: var(--cream);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 120px;
+            min-height: 60px;
+        }
+        .cmd-output .error {
+            color: #ff5252;
+        }
+        .cmd-output .success {
+            color: #4dffa4;
+        }
+
         /* ========== SCROLLBARS ========== */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--black); }
@@ -701,6 +748,7 @@
             }
             .media-art { width: 140px; height: 140px; }
             .sys-grid { grid-template-columns: 1fr; }
+            .cmd-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-height: 700px) {
@@ -714,6 +762,8 @@
             .window-item { padding: 0.2rem 0.3rem; }
             .window-item .win-title { font-size: 0.55rem; }
             #screenshot-button, #lock-button { padding: 0.3rem 0.8rem !important; font-size: 0.6rem !important; }
+            .cmd-btn { font-size: 0.5rem; padding: 0.3rem 0.2rem; }
+            .cmd-output { font-size: 0.5rem; max-height: 90px; min-height: 40px; }
         }
 
         @media (max-height: 600px) {
@@ -723,6 +773,7 @@
             .media-art { width: 100px; height: 100px; }
             .volume-controls { margin: 0.3rem 0; }
             .sys-process-list { max-height: 70px; }
+            .cmd-output { max-height: 70px; min-height: 30px; }
         }
 
         @media (max-width: 400px) {
@@ -751,6 +802,7 @@
             <button class="tab-btn" data-tab="tab3">Sistema</button>
             <button class="tab-btn" data-tab="tab4">Microfone</button>
             <button class="tab-btn" data-tab="tab5">Janelas</button>
+            <button class="tab-btn" data-tab="tab6">Terminal</button>
         </div>
 
         <!-- ============================================================ -->
@@ -893,7 +945,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 5: JANELAS (CORRIGIDA) -->
+        <!-- ABA 5: JANELAS -->
         <!-- ============================================================ -->
         <div id="tab5" class="tab-content">
             <div class="sys-card flex-1 min-h-0 flex flex-col">
@@ -907,7 +959,19 @@
             </div>
         </div>
 
-        <!-- RESULTADO -->
+        <!-- ============================================================ -->
+        <!-- ABA 6: TERMINAL (comandos pré-definidos) -->
+        <!-- ============================================================ -->
+        <div id="tab6" class="tab-content">
+            <div class="flex flex-col gap-2 flex-1 min-h-0">
+                <div id="cmd-grid" class="cmd-grid">
+                    <!-- Preenchido pelo JS -->
+                </div>
+                <div id="cmd-output" class="cmd-output">Clique em um comando para executar.</div>
+            </div>
+        </div>
+
+        <!-- RESULTADO (feedback) -->
         <div id="screenshot-result"></div>
     </div>
 
@@ -1579,6 +1643,64 @@
         }
 
         // ================================================================
+        // FUNÇÕES DA ABA TERMINAL
+        // ================================================================
+
+        let cmdGrid = document.getElementById('cmd-grid');
+        let cmdOutput = document.getElementById('cmd-output');
+
+        function loadCommands() {
+            fetch('/commands/list')
+                .then(res => res.json())
+                .then(commands => {
+                    cmdGrid.innerHTML = '';
+                    commands.forEach(cmd => {
+                        const btn = document.createElement('button');
+                        btn.className = 'cmd-btn';
+                        btn.textContent = cmd.label;
+                        btn.dataset.id = cmd.id;
+                        btn.dataset.confirm = cmd.confirm || false;
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const confirmRequired = this.dataset.confirm === 'true';
+                            if (confirmRequired && !confirm(`Executar "${this.textContent}"?`)) {
+                                return;
+                            }
+                            executeCommand(id);
+                        });
+                        cmdGrid.appendChild(btn);
+                    });
+                })
+                .catch(err => {
+                    cmdOutput.textContent = 'Erro ao carregar comandos.';
+                    console.error('Erro ao carregar comandos:', err);
+                });
+        }
+
+        function executeCommand(id) {
+            cmdOutput.textContent = 'Executando...';
+            cmdOutput.className = 'cmd-output';
+            fetch('/exec', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    cmdOutput.innerHTML = `<span class="error">✗ ${data.error}</span>`;
+                } else if (data.ok) {
+                    cmdOutput.innerHTML = `<span class="success">✓ OK (código ${data.code})</span>\n${data.output}`;
+                } else {
+                    cmdOutput.innerHTML = `<span class="error">✗ Erro (código ${data.code})</span>\n${data.output}`;
+                }
+            })
+            .catch(err => {
+                cmdOutput.innerHTML = `<span class="error">✗ Erro: ${err.message}</span>`;
+            });
+        }
+
+        // ================================================================
         // INICIALIZAÇÃO
         // ================================================================
 
@@ -1590,6 +1712,7 @@
             fetchMicStatus();
             fetchMicSources();
             fetchWindows();
+            loadCommands();
 
             if (sysInterval) clearInterval(sysInterval);
             sysInterval = setInterval(fetchSystemStats, 2000);
