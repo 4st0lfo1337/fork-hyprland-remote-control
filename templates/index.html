@@ -16,20 +16,10 @@
 
     <style>
         /* =========================================================
-           WIRED SOUNDS – FULL SCREEN, CONTENT BIGGER, BORDERS FIXED
+           ESTILO GERAL – WIRED SOUNDS
            ========================================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; overflow: hidden; }
 
         :root {
             --black: #050505;
@@ -42,16 +32,7 @@
         }
 
         body {
-            display: flex;
-            align-items: stretch;
-            justify-content: stretch;
-            background:
-                radial-gradient(
-                    circle at 50% 45%,
-                    rgba(206, 118, 136, 0.035),
-                    transparent 55%
-                ),
-                var(--black);
+            background: url('static/bg_dark_anim_0_08.gif') center center / cover no-repeat, #050505;
             color: var(--cream);
             font-family: 'Courier New', Courier, monospace;
             padding: 0;
@@ -64,32 +45,13 @@
             height: 100dvh;
             max-height: 100dvh;
             position: relative;
-            padding: 0.8rem 0.8rem 0.4rem;
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255, 255, 255, 0.015),
-                    transparent 45%
-                ),
-                var(--panel);
+            padding: 1.5rem 1.5rem 1rem;
+            background: linear-gradient(145deg, rgba(255,255,255,0.015), transparent 45%), var(--panel);
             border: 1px solid var(--red-dark);
             border-radius: 0;
-            box-shadow:
-                0 0 0 1px rgba(206, 118, 136, 0.025),
-                0 20px 80px rgba(0, 0, 0, 0.8);
-            background-image:
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(255, 255, 255, 0.012) 0px,
-                    rgba(255, 255, 255, 0.012) 1px,
-                    transparent 1px,
-                    transparent 4px
-                ),
-                linear-gradient(
-                    145deg,
-                    rgba(255, 255, 255, 0.015),
-                    transparent 45%
-                );
+            box-shadow: 0 0 0 1px rgba(206,118,136,0.025), 0 20px 80px rgba(0,0,0,0.8);
+            background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 4px),
+                              linear-gradient(145deg, rgba(255,255,255,0.015), transparent 45%);
             background-color: var(--panel);
             overflow-y: auto;
             display: flex;
@@ -99,22 +61,17 @@
         .wired-card::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--red), transparent);
             opacity: 0.8;
             pointer-events: none;
         }
-
         .wired-card::after {
             content: "";
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 28px;
-            height: 28px;
+            top: 10px; right: 10px;
+            width: 28px; height: 28px;
             border-top: 1px solid var(--red-dark);
             border-right: 1px solid var(--red-dark);
             pointer-events: none;
@@ -125,49 +82,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
             color: var(--red);
             font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
+            font-size: 1.25rem;
             font-weight: 400;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(206, 118, 136, 0.12);
+            text-shadow: 0 0 12px rgba(206,118,136,0.12);
             flex-shrink: 0;
         }
-
-        .title::before {
-            content: "[";
-            color: var(--muted);
-        }
-        .title::after {
-            content: "]";
-            color: var(--muted);
-        }
-        .title i {
-            color: var(--red);
-            font-size: 0.85rem;
-            filter: drop-shadow(0 0 6px rgba(206, 118, 136, 0.25));
-        }
+        .title::before { content: "["; color: var(--muted); }
+        .title::after { content: "]"; color: var(--muted); }
+        .title i { color: var(--red); font-size: 1rem; filter: drop-shadow(0 0 6px rgba(206,118,136,0.25)); }
         .title .cursor-blink {
             display: inline-block;
-            width: 5px;
-            height: 16px;
+            width: 5px; height: 18px;
             margin-left: 0.1rem;
             background: var(--red);
             animation: blink 1.1s step-end infinite;
         }
-        @keyframes blink {
-            0%, 45% { opacity: 1; }
-            46%, 100% { opacity: 0; }
-        }
+        @keyframes blink { 0%, 45% { opacity: 1; } 46%, 100% { opacity: 0; } }
 
         /* ========== TABS ========== */
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--line);
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.25rem;
             flex-wrap: nowrap;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -179,9 +121,9 @@
             background: transparent;
             border: none;
             color: var(--muted);
-            padding: 0.4rem 0.7rem;
+            padding: 0.5rem 1rem;
             font-family: 'Courier New', monospace;
-            font-size: 0.65rem;
+            font-size: 0.8rem;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             cursor: pointer;
@@ -191,10 +133,7 @@
             flex-shrink: 0;
         }
         .tab-btn:hover { color: var(--cream); }
-        .tab-btn.active {
-            color: var(--red);
-            border-bottom-color: var(--red);
-        }
+        .tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
 
         /* ========== TAB CONTENT ========== */
         .tab-content {
@@ -204,16 +143,14 @@
             flex-direction: column;
             overflow: hidden;
         }
-        .tab-content.active {
-            display: flex;
-        }
+        .tab-content.active { display: flex; }
 
         /* ========== WORKSPACE GRID ========== */
         .workspace-grid {
             display: grid;
             grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.3rem;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
             flex: 1;
             min-height: 0;
             align-content: start;
@@ -225,8 +162,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 54px;
-            padding: 0.4rem 0.1rem;
+            min-height: 64px;
+            padding: 0.5rem 0.15rem;
             background: #080808;
             color: #4c3d40;
             border: 1px solid var(--line);
@@ -238,57 +175,20 @@
         .workspace-btn::before {
             content: "";
             position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 4px;
-            height: 4px;
+            top: 4px; left: 4px;
+            width: 4px; height: 4px;
             background: #281c1f;
             transition: background 0.15s ease, box-shadow 0.15s ease;
         }
-        .workspace-btn .num {
-            font-size: 1.2rem;
-            line-height: 1;
-            font-weight: 400;
-            color: inherit;
-        }
-        .workspace-btn .label {
-            margin-top: 0.05rem;
-            color: var(--muted);
-            font-size: 0.4rem;
-            letter-spacing: 0.15em;
-            opacity: 0.7;
-        }
-        .workspace-btn:hover {
-            background: #0e0a0b;
-            border-color: var(--red-dark);
-            color: var(--red);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.45), inset 0 0 20px rgba(206,118,136,0.025);
-        }
+        .workspace-btn .num { font-size: 1.5rem; line-height: 1; font-weight: 400; color: inherit; }
+        .workspace-btn .label { margin-top: 0.1rem; color: var(--muted); font-size: 0.5rem; letter-spacing: 0.15em; opacity: 0.7; }
+        .workspace-btn:hover { background: #0e0a0b; border-color: var(--red-dark); color: var(--red); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,0,0,0.45), inset 0 0 20px rgba(206,118,136,0.025); }
         .workspace-btn:hover::before { background: var(--red); }
-        .workspace-btn.active-workspace {
-            background: #0e0a0b;
-            border-color: var(--red);
-            color: var(--red);
-            box-shadow: 0 0 25px rgba(206,118,136,0.06);
-        }
-        .workspace-btn.active-workspace::before {
-            background: var(--red);
-            box-shadow: 0 0 8px var(--red);
-        }
-        .workspace-btn.focused-workspace {
-            background: #0e0a0b;
-            border-color: #ce7688;
-            color: #ce7688;
-            box-shadow: 0 0 30px rgba(206,118,136,0.15);
-        }
-        .workspace-btn.focused-workspace::before {
-            background: #ce7688;
-            box-shadow: 0 0 12px #ce7688;
-        }
-        .workspace-btn.click-flash {
-            animation: click-flash 0.6s ease forwards !important;
-        }
+        .workspace-btn.active-workspace { background: #0e0a0b; border-color: var(--red); color: var(--red); box-shadow: 0 0 25px rgba(206,118,136,0.06); }
+        .workspace-btn.active-workspace::before { background: var(--red); box-shadow: 0 0 8px var(--red); }
+        .workspace-btn.focused-workspace { background: #0e0a0b; border-color: #ce7688; color: #ce7688; box-shadow: 0 0 30px rgba(206,118,136,0.15); }
+        .workspace-btn.focused-workspace::before { background: #ce7688; box-shadow: 0 0 12px #ce7688; }
+        .workspace-btn.click-flash { animation: click-flash 0.6s ease forwards !important; }
         @keyframes click-flash {
             0% { transform: scale(1); background: #080808; border-color: var(--line); color: #4c3d40; }
             30% { transform: scale(0.94); background: var(--red-dark); border-color: var(--red); color: var(--red); }
@@ -301,9 +201,9 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 0.4rem 0.8rem;
-            margin: 0.3rem 0 0.4rem;
-            padding: 0.3rem;
+            gap: 0.5rem 1rem;
+            margin: 0.5rem 0 1rem;
+            padding: 0.5rem;
             border-top: 1px solid var(--line);
             border-bottom: 1px solid var(--line);
             flex-shrink: 0;
@@ -311,41 +211,27 @@
         .monitor-item {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
-            font-size: 0.65rem;
+            gap: 0.4rem;
+            font-size: 0.75rem;
             letter-spacing: 0.05em;
             color: var(--muted);
         }
-        .monitor-item .monitor-name {
-            color: var(--cream);
-            font-weight: 400;
-        }
-        .monitor-item .monitor-ws {
-            background: var(--red-dark);
-            color: var(--cream);
-            padding: 0.05rem 0.4rem;
-            border-radius: 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-        }
-        .monitor-item .monitor-ws.focused {
-            background: var(--red);
-            color: #050505;
-            font-weight: bold;
-        }
+        .monitor-item .monitor-name { color: var(--cream); font-weight: 400; }
+        .monitor-item .monitor-ws { background: var(--red-dark); color: var(--cream); padding: 0.1rem 0.5rem; border-radius: 0; font-family: 'Courier New', monospace; font-size: 0.8rem; }
+        .monitor-item .monitor-ws.focused { background: var(--red); color: #050505; font-weight: bold; }
 
         /* ========== VOLUME ========== */
         .volume-controls {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.8rem;
-            margin: 0.6rem 0;
+            gap: 1rem;
+            margin: 1rem 0;
             flex-shrink: 0;
         }
         .volume-controls input[type="range"] {
             flex: 1;
-            height: 6px;
+            height: 8px;
             -webkit-appearance: none;
             appearance: none;
             background: #1a1a1a;
@@ -355,161 +241,54 @@
         .volume-controls input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px; height: 24px;
             border-radius: 50%;
             background: var(--red);
             cursor: pointer;
             box-shadow: 0 0 8px rgba(206,118,136,0.6);
         }
         .volume-controls input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px; height: 24px;
             border-radius: 50%;
             background: var(--red);
             cursor: pointer;
             border: none;
         }
-        #volume-display {
-            min-width: 3.5rem;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--muted);
-        }
-        .volume-btn {
-            background: #080808;
-            border: 1px solid var(--line);
-            color: var(--muted);
-            padding: 0.4rem 0.8rem;
-            cursor: pointer;
-            transition: 0.15s ease;
-            font-size: 0.9rem;
-        }
-        .volume-btn:hover {
-            border-color: var(--red);
-            color: var(--red);
-            background: rgba(206,118,136,0.035);
-        }
+        #volume-display { min-width: 4rem; text-align: center; font-size: 1rem; color: var(--muted); }
+        .volume-btn { background: #080808; border: 1px solid var(--line); color: var(--muted); padding: 0.5rem 1rem; cursor: pointer; transition: 0.15s ease; font-size: 1.1rem; }
+        .volume-btn:hover { border-color: var(--red); color: var(--red); background: rgba(206,118,136,0.035); }
 
         /* ========== MÍDIA ========== */
-        .media-container {
-            margin: 0.3rem 0 0.6rem;
-            padding: 0.2rem 0;
-            flex-shrink: 0;
-        }
-        .media-player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.4rem;
-        }
+        .media-container { margin: 0.5rem 0 1rem; padding: 0.25rem 0; flex-shrink: 0; }
+        .media-player { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
         .media-art {
-            width: 180px;
-            height: 180px;
+            width: 200px; height: 200px;
             background: #080808;
             border: 1px solid var(--line);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
         }
-        .media-art img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .media-art .placeholder {
-            color: var(--muted);
-            font-size: 0.65rem;
-            text-align: center;
-            padding: 0.3rem;
-        }
-        .media-info {
-            text-align: center;
-            width: 100%;
-        }
-        .media-title {
-            font-size: 1rem;
-            color: var(--cream);
-            font-weight: 400;
-            letter-spacing: 0.05em;
-        }
-        .media-artist {
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-        .media-status-badge {
-            font-size: 0.6rem;
-            color: var(--red);
-            text-transform: uppercase;
-        }
-        .media-controls {
-            display: flex;
-            gap: 0.7rem;
-            justify-content: center;
-            margin-top: 0.1rem;
-        }
-        .media-btn {
-            background: #080808;
-            border: 1px solid var(--line);
-            color: var(--muted);
-            padding: 0.4rem 0.9rem;
-            cursor: pointer;
-            transition: 0.15s ease;
-            font-size: 1rem;
-        }
-        .media-btn:hover {
-            border-color: var(--red);
-            color: var(--red);
-        }
+        .media-art img { width: 100%; height: 100%; object-fit: cover; }
+        .media-art .placeholder { color: var(--muted); font-size: 0.75rem; text-align: center; padding: 0.3rem; }
+        .media-info { text-align: center; width: 100%; }
+        .media-title { font-size: 1.2rem; color: var(--cream); font-weight: 400; letter-spacing: 0.05em; }
+        .media-artist { font-size: 0.85rem; color: var(--muted); }
+        .media-status-badge { font-size: 0.7rem; color: var(--red); text-transform: uppercase; }
+        .media-controls { display: flex; gap: 1rem; justify-content: center; margin-top: 0.25rem; }
+        .media-btn { background: #080808; border: 1px solid var(--line); color: var(--muted); padding: 0.5rem 1rem; cursor: pointer; transition: 0.15s ease; font-size: 1.2rem; }
+        .media-btn:hover { border-color: var(--red); color: var(--red); }
 
         /* Timeline – barra de progresso estática */
-        .media-timeline {
-            width: 100%;
-            max-width: 300px;
-            margin: 0.3rem auto 0;
-        }
-        .media-timeline .time-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.5rem;
-            font-family: monospace;
-            color: var(--muted);
-        }
-        .media-timeline .time-row .time-label {
-            min-width: 2.8rem;
-            text-align: right;
-        }
-        .media-timeline .time-row .time-label:last-child {
-            text-align: left;
-        }
-        .media-timeline .progress-track {
-            flex: 1;
-            height: 4px;
-            background: #1a1a1a;
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-        .media-timeline .progress-track .progress-fill {
-            height: 100%;
-            background: var(--red);
-            width: 0%;
-            transition: width 0.2s ease;
-            border-radius: 2px;
-        }
+        .media-timeline { width: 100%; max-width: 350px; margin: 0.5rem auto 0; }
+        .media-timeline .time-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.6rem; font-family: monospace; color: var(--muted); }
+        .media-timeline .time-row .time-label { min-width: 3rem; text-align: right; }
+        .media-timeline .time-row .time-label:last-child { text-align: left; }
+        .media-timeline .progress-track { flex: 1; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden; position: relative; }
+        .media-timeline .progress-track .progress-fill { height: 100%; background: var(--red); width: 0%; transition: width 0.2s ease; border-radius: 3px; }
 
         /* ========== SCREENSHOT & LOCK & WLOGOUT ========== */
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.6rem;
-            margin-top: 0.4rem;
-            flex-shrink: 0;
-        }
+        .action-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; flex-shrink: 0; }
         #screenshot-button,
         #lock-button,
         #wlogout-button {
@@ -517,14 +296,14 @@
             display: inline-flex !important;
             align-items: center;
             justify-content: center;
-            gap: 0.4rem;
-            padding: 0.4rem 1.2rem !important;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem !important;
             background: transparent !important;
             color: var(--red) !important;
             border: 1px solid var(--red-dark) !important;
             border-radius: 0 !important;
             font-family: 'Courier New', Courier, monospace !important;
-            font-size: 0.7rem !important;
+            font-size: 0.8rem !important;
             font-weight: 400 !important;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -533,166 +312,55 @@
         }
         #screenshot-button::before,
         #lock-button::before,
-        #wlogout-button::before {
-            content: ">";
-            color: var(--muted);
-        }
+        #wlogout-button::before { content: ">"; color: var(--muted); }
         #screenshot-button:hover,
         #lock-button:hover,
-        #wlogout-button:hover {
-            background: rgba(206,118,136,0.035) !important;
-            border-color: var(--red) !important;
-            box-shadow: 0 0 25px rgba(206,118,136,0.08);
-            transform: translateY(-1px);
-        }
+        #wlogout-button:hover { background: rgba(206,118,136,0.035) !important; border-color: var(--red) !important; box-shadow: 0 0 25px rgba(206,118,136,0.08); transform: translateY(-1px); }
         #screenshot-button i,
         #lock-button i,
-        #wlogout-button i {
-            font-size: 0.7rem;
-        }
+        #wlogout-button i { font-size: 0.85rem; }
 
-        #screenshot-result {
-            min-height: 1rem;
-            margin-top: 0.3rem;
-            color: var(--muted);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.55rem;
-            text-align: center;
-            letter-spacing: 0.08em;
-            flex-shrink: 0;
-        }
+        #screenshot-result { min-height: 1.25rem; margin-top: 0.5rem; color: var(--muted); font-family: 'Courier New', Courier, monospace; font-size: 0.65rem; text-align: center; letter-spacing: 0.08em; flex-shrink: 0; }
 
         /* ========== SISTEMA ========== */
-        .sys-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            flex: 1;
-            min-height: 0;
-            align-content: start;
-        }
-        .sys-card {
-            background: #0b0b0b;
-            padding: 0.5rem;
-            border: 1px solid var(--line);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .sys-card .label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.6rem;
-            color: var(--muted);
-        }
-        .sys-bar {
-            width: 100%;
-            background: #1a1a1a;
-            height: 6px;
-            margin-top: 3px;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .sys-bar .fill {
-            height: 100%;
-            background: var(--red);
-            transition: width 0.3s;
-        }
-        .sys-process-list {
-            max-height: 110px;
-            overflow-y: auto;
-            font-size: 0.55rem;
-            flex: 1;
-        }
+        .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; flex: 1; min-height: 0; align-content: start; }
+        .sys-card { background: #0b0b0b; padding: 0.75rem; border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; }
+        .sys-card .label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); }
+        .sys-bar { width: 100%; background: #1a1a1a; height: 8px; margin-top: 4px; border-radius: 4px; overflow: hidden; }
+        .sys-bar .fill { height: 100%; background: var(--red); transition: width 0.3s; }
+        .sys-process-list { max-height: 120px; overflow-y: auto; font-size: 0.65rem; flex: 1; }
         .sys-process-list::-webkit-scrollbar { width: 3px; }
         .sys-process-list::-webkit-scrollbar-thumb { background: var(--red-dark); }
 
         /* ========== MICROFONE ========== */
-        .mic-slider {
-            height: 6px;
-            background: #1a1a1a;
-            border-radius: 3px;
-            accent-color: var(--red);
-        }
+        .mic-slider { height: 8px; background: #1a1a1a; border-radius: 4px; accent-color: var(--red); }
 
         /* ========== JANELAS ========== */
         .window-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.3rem 0.4rem;
+            padding: 0.4rem 0.5rem;
             border-bottom: 1px solid var(--line);
-            gap: 0.3rem;
-            font-size: 0.6rem;
+            gap: 0.5rem;
+            font-size: 0.7rem;
         }
-        .window-item .win-title {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--cream);
-            font-size: 0.65rem;
-        }
-        .window-item .win-ws {
-            color: var(--muted);
-            font-size: 0.5rem;
-            margin-right: 0.1rem;
-            flex-shrink: 0;
-        }
-        .window-item .win-actions {
-            display: flex;
-            gap: 0.3rem;
-            flex-shrink: 0;
-            align-items: center;
-        }
-        .window-item .win-actions button {
-            background: transparent;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            padding: 0.1rem 0.3rem;
-            font-size: 0.6rem;
-            transition: 0.15s;
-        }
+        .window-item .win-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--cream); font-size: 0.75rem; }
+        .window-item .win-ws { color: var(--muted); font-size: 0.6rem; margin-right: 0.15rem; flex-shrink: 0; }
+        .window-item .win-actions { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
+        .window-item .win-actions button { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0.15rem 0.3rem; font-size: 0.7rem; transition: 0.15s; }
         .window-item .win-actions button:hover { color: var(--red); }
         .window-item .win-actions .focus-btn { color: var(--cream); }
         .window-item .win-actions .focus-btn:hover { color: var(--red); }
         .window-item .win-actions .kill-btn { color: #ff5252; }
         .window-item .win-actions .kill-btn:hover { color: #ff0000; }
-        .window-item.focused {
-            background: rgba(206,118,136,0.08);
-            border-left: 2px solid var(--red);
-        }
-        .window-item .win-move-select {
-            background: #1a1a1a;
-            border: 1px solid var(--line);
-            color: var(--cream);
-            font-size: 0.5rem;
-            padding: 0.05rem 0.15rem;
-            border-radius: 0;
-            width: 2.8rem;
-            height: 1.6rem;
-            outline: none;
-            appearance: auto;
-        }
-        .window-item .win-move-select:focus {
-            border-color: var(--red);
-        }
-        .window-item .win-move-btn {
-            background: transparent;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            padding: 0.1rem 0.2rem;
-            font-size: 0.6rem;
-            transition: 0.15s;
-        }
-        .window-item .win-move-btn:hover {
-            color: var(--red);
-        }
+        .window-item.focused { background: rgba(206,118,136,0.08); border-left: 2px solid var(--red); }
+        .window-item .win-move-select { background: #1a1a1a; border: 1px solid var(--line); color: var(--cream); font-size: 0.6rem; padding: 0.05rem 0.15rem; border-radius: 0; width: 3rem; height: 1.8rem; outline: none; appearance: auto; }
+        .window-item .win-move-select:focus { border-color: var(--red); }
+        .window-item .win-move-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0.1rem 0.25rem; font-size: 0.7rem; transition: 0.15s; }
+        .window-item .win-move-btn:hover { color: var(--red); }
 
-        /* ========== TERMINAL ========== */
+        /* ========== TERMINAL (RESTAURADO AO ORIGINAL) ========== */
         .cmd-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -740,138 +408,68 @@
         }
 
         /* ========== NOTIFICAÇÕES ========== */
-        .notif-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            padding: 0.4rem 0.4rem;
-            border-bottom: 1px solid var(--line);
-        }
-        .notif-item .notif-icon {
-            flex-shrink: 0;
-            font-size: 1.2rem;
-            margin-top: 0.1rem;
-        }
-        .notif-item .notif-content {
-            flex: 1;
-            min-width: 0;
-        }
-        .notif-item .notif-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--cream);
-        }
-        .notif-item .notif-body {
-            font-size: 0.65rem;
-            color: var(--muted);
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        .notif-item .notif-app {
-            font-size: 0.55rem;
-            color: var(--red);
-        }
-        .notif-item .notif-time {
-            font-size: 0.5rem;
-            color: var(--muted);
-            opacity: 0.6;
-        }
-        .notif-item .notif-actions {
-            display: flex;
-            gap: 0.3rem;
-            flex-shrink: 0;
-        }
-        .notif-item .notif-actions button {
-            background: transparent;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 0.6rem;
-            padding: 0.1rem 0.2rem;
-            transition: 0.15s;
-        }
-        .notif-item .notif-actions button:hover {
-            color: var(--red);
-        }
-        .notif-item .notif-actions .read-btn {
-            color: var(--cream);
-        }
-        .notif-item .notif-actions .read-btn:hover {
-            color: var(--red);
-        }
-        .notif-item.read {
-            opacity: 0.6;
-        }
-        .notif-item.read .notif-title {
-            color: var(--muted);
-        }
-
-        .notif-empty {
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.65rem;
-            padding: 1rem 0;
-        }
-
-        .notif-count {
-            color: var(--red);
-            font-size: 0.55rem;
-            margin-left: 0.2rem;
-        }
+        .notif-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem; border-bottom: 1px solid var(--line); }
+        .notif-item .notif-icon { flex-shrink: 0; font-size: 1.4rem; margin-top: 0.1rem; }
+        .notif-item .notif-content { flex: 1; min-width: 0; }
+        .notif-item .notif-title { font-size: 0.85rem; font-weight: 600; color: var(--cream); }
+        .notif-item .notif-body { font-size: 0.75rem; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+        .notif-item .notif-app { font-size: 0.65rem; color: var(--red); }
+        .notif-item .notif-time { font-size: 0.6rem; color: var(--muted); opacity: 0.6; }
+        .notif-item .notif-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+        .notif-item .notif-actions button { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 0.7rem; padding: 0.1rem 0.25rem; transition: 0.15s; }
+        .notif-item .notif-actions button:hover { color: var(--red); }
+        .notif-item .notif-actions .read-btn { color: var(--cream); }
+        .notif-item .notif-actions .read-btn:hover { color: var(--red); }
+        .notif-item.read { opacity: 0.6; }
+        .notif-item.read .notif-title { color: var(--muted); }
+        .notif-empty { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 1.5rem 0; }
+        .notif-count { color: var(--red); font-size: 0.65rem; margin-left: 0.25rem; }
 
         /* ========== SCROLLBARS ========== */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: var(--black); }
         ::-webkit-scrollbar-thumb { background: var(--red-dark); }
         ::-webkit-scrollbar-thumb:hover { background: var(--red); }
 
-        /* ========== RESPONSIVE ========== */
+        /* ========== RESPONSIVO ========== */
         @media (orientation: portrait) {
-            .workspace-grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-            .media-art { width: 140px; height: 140px; }
+            .workspace-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .media-art { width: 150px; height: 150px; }
             .sys-grid { grid-template-columns: 1fr; }
             .cmd-grid { grid-template-columns: 1fr; }
         }
-
         @media (max-height: 700px) {
-            .title { font-size: 0.85rem; margin-bottom: 0.3rem; }
-            .tab-btn { font-size: 0.55rem; padding: 0.3rem 0.5rem; }
-            .workspace-btn { min-height: 44px; }
-            .workspace-btn .num { font-size: 1rem; }
+            .title { font-size: 1rem; margin-bottom: 0.5rem; }
+            .tab-btn { font-size: 0.7rem; padding: 0.35rem 0.6rem; }
+            .workspace-btn { min-height: 50px; }
+            .workspace-btn .num { font-size: 1.1rem; }
             .media-art { width: 120px; height: 120px; }
-            .media-title { font-size: 0.85rem; }
-            .sys-card { padding: 0.3rem; }
-            .window-item { padding: 0.2rem 0.3rem; }
-            .window-item .win-title { font-size: 0.55rem; }
-            #screenshot-button, #lock-button, #wlogout-button { padding: 0.3rem 0.8rem !important; font-size: 0.6rem !important; }
+            .media-title { font-size: 0.95rem; }
+            .sys-card { padding: 0.5rem; }
+            .window-item { padding: 0.25rem 0.3rem; }
+            .window-item .win-title { font-size: 0.65rem; }
+            #screenshot-button, #lock-button, #wlogout-button { padding: 0.35rem 0.9rem !important; font-size: 0.7rem !important; }
             .cmd-btn { font-size: 0.5rem; padding: 0.3rem 0.2rem; }
             .cmd-output { font-size: 0.5rem; min-height: 80px; max-height: 140px; }
-            .notif-item { padding: 0.3rem 0.3rem; }
-            .notif-item .notif-title { font-size: 0.65rem; }
-            .notif-item .notif-body { font-size: 0.55rem; }
+            .notif-item { padding: 0.35rem; }
+            .notif-item .notif-title { font-size: 0.75rem; }
+            .notif-item .notif-body { font-size: 0.65rem; }
         }
-
         @media (max-height: 600px) {
-            .workspace-grid { gap: 0.3rem; }
-            .workspace-btn { min-height: 36px; }
-            .workspace-btn .num { font-size: 0.85rem; }
+            .workspace-grid { gap: 0.4rem; }
+            .workspace-btn { min-height: 40px; }
+            .workspace-btn .num { font-size: 0.95rem; }
             .media-art { width: 100px; height: 100px; }
-            .volume-controls { margin: 0.3rem 0; }
+            .volume-controls { margin: 0.4rem 0; }
             .sys-process-list { max-height: 70px; }
             .cmd-output { min-height: 60px; max-height: 100px; }
-            .notif-item { padding: 0.2rem 0.2rem; }
+            .notif-item { padding: 0.25rem; }
         }
-
         @media (max-width: 400px) {
-            .workspace-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
+            .workspace-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
     </style>
 </head>
-
 <body>
 
     <div class="wired-card">
@@ -898,28 +496,18 @@
         <!-- ABA 1: WORKSPACES + LOCK + WLOGOUT -->
         <!-- ============================================================ -->
         <div id="tab1" class="tab-content active">
-            <div id="monitors-container" class="monitors-container">
-                <!-- Preenchido pelo JS -->
-            </div>
+            <div id="monitors-container" class="monitors-container"></div>
             <div class="workspace-grid" style="flex:1; min-height:0;">
                 {% for i in range(1, 11) %}
-                    <button
-                        id="workspace-{{ i }}"
-                        class="workspace-btn"
-                        onclick="switchWorkspace({{ i }})"
-                    >
+                    <button id="workspace-{{ i }}" class="workspace-btn" onclick="switchWorkspace({{ i }})">
                         <span class="num">{{ i }}</span>
                         <span class="label">WS</span>
                     </button>
                 {% endfor %}
             </div>
-            <div class="action-buttons" style="margin-top: 0.4rem;">
-                <button id="lock-button" onclick="lockScreen()">
-                    <i class="fas fa-lock"></i> LOCK
-                </button>
-                <button id="wlogout-button" onclick="runWlogout()">
-                    <i class="fas fa-sign-out-alt"></i> WLOGOUT
-                </button>
+            <div class="action-buttons" style="margin-top: 0.75rem;">
+                <button id="lock-button" onclick="lockScreen()"><i class="fas fa-lock"></i> LOCK</button>
+                <button id="wlogout-button" onclick="runWlogout()"><i class="fas fa-sign-out-alt"></i> WLOGOUT</button>
             </div>
         </div>
 
@@ -929,32 +517,21 @@
         <div id="tab2" class="tab-content">
             <div class="media-container">
                 <div id="media-player" class="media-player">
-                    <div class="media-art" id="media-art">
-                        <div class="placeholder">no cover</div>
-                    </div>
+                    <div class="media-art" id="media-art"><div class="placeholder">no cover</div></div>
                     <div class="media-info">
                         <div class="media-title" id="media-title">Nenhuma mídia</div>
                         <div class="media-artist" id="media-artist">-</div>
                         <div class="media-status-badge" id="media-status">⏹ parado</div>
                     </div>
                     <div class="media-controls">
-                        <button class="media-btn" onclick="mediaControl('previous')" title="Anterior">
-                            <i class="fas fa-backward"></i>
-                        </button>
-                        <button class="media-btn" id="media-play-btn" onclick="mediaControl('play-pause')" title="Play/Pause">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="media-btn" onclick="mediaControl('next')" title="Próxima">
-                            <i class="fas fa-forward"></i>
-                        </button>
+                        <button class="media-btn" onclick="mediaControl('previous')" title="Anterior"><i class="fas fa-backward"></i></button>
+                        <button class="media-btn" id="media-play-btn" onclick="mediaControl('play-pause')" title="Play/Pause"><i class="fas fa-play"></i></button>
+                        <button class="media-btn" onclick="mediaControl('next')" title="Próxima"><i class="fas fa-forward"></i></button>
                     </div>
-                    <!-- BARRA DE PROGRESSO ESTÁTICA -->
                     <div class="media-timeline">
                         <div class="time-row">
                             <span class="time-label" id="media-current-time">0:00</span>
-                            <div class="progress-track">
-                                <div class="progress-fill" id="media-progress-fill" style="width:0%"></div>
-                            </div>
+                            <div class="progress-track"><div class="progress-fill" id="media-progress-fill" style="width:0%"></div></div>
                             <span class="time-label" id="media-duration">0:00</span>
                         </div>
                     </div>
@@ -962,17 +539,13 @@
             </div>
 
             <div class="volume-controls">
-                <button class="volume-btn" id="vol-mute-btn" onclick="toggleMute()" title="Mutar/Desmutar">
-                    <i class="fas fa-volume-mute"></i>
-                </button>
+                <button class="volume-btn" id="vol-mute-btn" onclick="toggleMute()" title="Mutar/Desmutar"><i class="fas fa-volume-mute"></i></button>
                 <input id="volume-slider" type="range" min="0" max="150" value="0" />
                 <span id="volume-display">--%</span>
             </div>
 
-            <div class="action-buttons" style="margin-top: 0.3rem;">
-                <button id="screenshot-button" onclick="window.location.href='/screenshot/take'">
-                    <i class="fas fa-camera"></i> SCREENSHOT
-                </button>
+            <div class="action-buttons" style="margin-top: 0.5rem;">
+                <button id="screenshot-button" onclick="window.location.href='/screenshot/take'"><i class="fas fa-camera"></i> SCREENSHOT</button>
             </div>
         </div>
 
@@ -984,26 +557,24 @@
                 <div class="sys-card">
                     <div class="label"><span>CPU</span><span id="sys-cpu-pct">--%</span></div>
                     <div class="sys-bar"><div id="sys-cpu-bar" class="fill" style="width:0%"></div></div>
-                    <div class="flex justify-between text-[0.45rem] text-zinc-500 mt-1">
-                        <span id="sys-cpu-temp">--°C</span>
-                        <span id="sys-cpu-freq">-- GHz</span>
+                    <div class="flex justify-between text-[0.55rem] text-zinc-500 mt-1">
+                        <span id="sys-cpu-temp">--°C</span><span id="sys-cpu-freq">-- GHz</span>
                     </div>
                 </div>
                 <div class="sys-card">
                     <div class="label"><span>RAM</span><span id="sys-ram-pct">--%</span></div>
                     <div class="sys-bar"><div id="sys-ram-bar" class="fill" style="width:0%"></div></div>
-                    <div class="text-[0.45rem] text-zinc-500 mt-1"><span id="sys-ram-used">-- / -- GB</span></div>
+                    <div class="text-[0.55rem] text-zinc-500 mt-1"><span id="sys-ram-used">-- / -- GB</span></div>
                 </div>
                 <div class="sys-card col-span-2" id="gpu-container">
                     <div class="label"><span>GPU</span><span id="sys-gpu-pct">--%</span></div>
                     <div class="sys-bar"><div id="sys-gpu-bar" class="fill" style="width:0%"></div></div>
-                    <div class="flex justify-between text-[0.45rem] text-zinc-500 mt-1">
-                        <span id="sys-gpu-vram">VRAM -- / -- MB</span>
-                        <span id="sys-gpu-temp">--°C</span>
+                    <div class="flex justify-between text-[0.55rem] text-zinc-500 mt-1">
+                        <span id="sys-gpu-vram">VRAM -- / -- MB</span><span id="sys-gpu-temp">--°C</span>
                     </div>
                 </div>
                 <div class="sys-card col-span-2" style="flex:1; min-height:0;">
-                    <div class="text-[0.5rem] text-zinc-500 mb-0.5">Processos (top por memória)</div>
+                    <div class="text-[0.6rem] text-zinc-500 mb-0.5">Processos (top por memória)</div>
                     <div id="sys-process-list" class="sys-process-list"></div>
                 </div>
             </div>
@@ -1013,23 +584,20 @@
         <!-- ABA 4: MICROFONE -->
         <!-- ============================================================ -->
         <div id="tab4" class="tab-content">
-            <div class="flex flex-col gap-2 flex-1 min-h-0">
+            <div class="flex flex-col gap-3 flex-1 min-h-0">
                 <div class="sys-card">
                     <div class="flex items-center justify-between">
                         <span class="text-sm">🎤 Microfone</span>
-                        <button id="mic-mute-btn" class="volume-btn" onclick="toggleMicMute()">
-                            <i class="fas fa-microphone"></i>
-                        </button>
+                        <button id="mic-mute-btn" class="volume-btn" onclick="toggleMicMute()"><i class="fas fa-microphone"></i></button>
                     </div>
-                    <div class="flex items-center gap-3 mt-1">
+                    <div class="flex items-center gap-3 mt-2">
                         <span id="mic-volume-display" class="text-sm min-w-[3rem]">--%</span>
-                        <input id="mic-slider" type="range" min="0" max="150" value="0"
-                               class="flex-1 mic-slider">
+                        <input id="mic-slider" type="range" min="0" max="150" value="0" class="flex-1 mic-slider">
                     </div>
-                    <div class="text-[0.5rem] text-zinc-500 mt-0.5"><span id="mic-status-text">--</span></div>
+                    <div class="text-[0.6rem] text-zinc-500 mt-1"><span id="mic-status-text">--</span></div>
                 </div>
                 <div class="sys-card flex-1 min-h-0">
-                    <div class="text-[0.5rem] text-zinc-500 mb-0.5">Dispositivos de entrada</div>
+                    <div class="text-[0.6rem] text-zinc-500 mb-1">Dispositivos de entrada</div>
                     <div id="mic-source-list" class="sys-process-list"></div>
                 </div>
             </div>
@@ -1040,18 +608,18 @@
         <!-- ============================================================ -->
         <div id="tab5" class="tab-content">
             <div class="sys-card flex-1 min-h-0 flex flex-col">
-                <div class="flex items-center justify-between mb-0.5">
-                    <span class="text-[0.5rem] text-zinc-500">Janelas abertas</span>
-                    <span id="win-count" class="text-[0.45rem] text-zinc-500">0</span>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[0.6rem] text-zinc-500">Janelas abertas</span>
+                    <span id="win-count" class="text-[0.55rem] text-zinc-500">0</span>
                 </div>
                 <div id="windows-list" class="flex-1 overflow-y-auto">
-                    <div class="text-zinc-600 text-[0.5rem] text-center py-2">Nenhuma janela aberta</div>
+                    <div class="text-zinc-600 text-[0.6rem] text-center py-2">Nenhuma janela aberta</div>
                 </div>
             </div>
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 6: TERMINAL -->
+        <!-- ABA 6: TERMINAL (restaurada ao original) -->
         <!-- ============================================================ -->
         <div id="tab6" class="tab-content">
             <div class="flex flex-col gap-2 flex-1 min-h-0">
@@ -1067,23 +635,21 @@
         <!-- ============================================================ -->
         <div id="tab7" class="tab-content">
             <div class="sys-card flex-1 min-h-0 flex flex-col">
-                <div class="flex items-center justify-between mb-0.5">
-                    <span class="text-[0.5rem] text-zinc-500">Notificações</span>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[0.6rem] text-zinc-500">Notificações</span>
                     <span id="notif-count" class="notif-count">0 não lidas</span>
                 </div>
-                <!-- Formulário para enviar notificação -->
-                <div class="flex gap-1 mb-1">
-                    <input id="notify-summary" type="text" placeholder="Título" 
-                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
-                    <input id="notify-body" type="text" placeholder="Corpo (opcional)" 
-                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
-                    <button id="notify-send-btn" class="cmd-btn" style="padding:0.2rem 0.5rem; font-size:0.5rem;">Enviar</button>
+                <div class="flex gap-2 mb-2">
+                    <input id="notify-summary" type="text" placeholder="Título"
+                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-zinc-200">
+                    <input id="notify-body" type="text" placeholder="Corpo (opcional)"
+                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-xs text-zinc-200">
+                    <button id="notify-send-btn" class="cmd-btn" style="padding:0.3rem 0.6rem; font-size:0.6rem;">Enviar</button>
                 </div>
-                <!-- Botões em massa -->
-                <div class="flex gap-1 mb-1">
-                    <button id="notif-mark-all-read" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Marcar todas como lidas</button>
-                    <button id="notif-clear-read" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Remover lidas</button>
-                    <button id="notif-clear-all" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Limpar tudo</button>
+                <div class="flex gap-2 mb-2">
+                    <button id="notif-mark-all-read" class="cmd-btn" style="flex:1; padding:0.3rem; font-size:0.6rem;">Marcar todas como lidas</button>
+                    <button id="notif-clear-read" class="cmd-btn" style="flex:1; padding:0.3rem; font-size:0.6rem;">Remover lidas</button>
+                    <button id="notif-clear-all" class="cmd-btn" style="flex:1; padding:0.3rem; font-size:0.6rem;">Limpar tudo</button>
                 </div>
                 <div id="notif-list" class="flex-1 overflow-y-auto">
                     <div class="notif-empty">Carregando notificações...</div>
@@ -1106,31 +672,22 @@
                 this.classList.add('active');
                 const tabId = this.dataset.tab;
                 document.getElementById(tabId).classList.add('active');
-                // Carrega notificações quando a aba é ativada
-                if (tabId === 'tab7') {
-                    loadNotifications();
-                }
+                if (tabId === 'tab7') loadNotifications();
             });
         });
 
         // ================================================================
         // FUNÇÕES DE WORKSPACE E MONITORES
         // ================================================================
-
         function highlightWorkspaceButtons(monitors) {
-            document.querySelectorAll(".workspace-btn").forEach((btn) => {
-                btn.classList.remove("active-workspace", "focused-workspace");
-            });
-
+            document.querySelectorAll(".workspace-btn").forEach((btn) => btn.classList.remove("active-workspace", "focused-workspace"));
             monitors.forEach((mon) => {
                 const wsId = mon.workspace;
                 if (wsId !== undefined && wsId !== null) {
                     const btn = document.getElementById(`workspace-${wsId}`);
                     if (btn) {
                         btn.classList.add("active-workspace");
-                        if (mon.focused) {
-                            btn.classList.add("focused-workspace");
-                        }
+                        if (mon.focused) btn.classList.add("focused-workspace");
                     }
                 }
             });
@@ -1139,165 +696,94 @@
         function updateMonitorsUI(monitors) {
             const container = document.getElementById("monitors-container");
             if (!container) return;
-
             if (!monitors || monitors.length === 0) {
-                container.innerHTML =
-                    '<span class="text-muted" style="font-size:0.6rem;">no monitors found</span>';
+                container.innerHTML = '<span class="text-muted" style="font-size:0.7rem;">no monitors found</span>';
                 return;
             }
-
             let html = "";
             monitors.forEach((mon) => {
                 const ws = mon.workspace !== undefined ? mon.workspace : "?";
                 const focusedClass = mon.focused ? "focused" : "";
-                html += `
-                    <div class="monitor-item">
-                        <span class="monitor-name">${mon.name}</span>
-                        <span class="monitor-ws ${focusedClass}">${ws}</span>
-                        ${
-                    mon.focused
-                        ? '<i class="fas fa-circle" style="color:var(--red);font-size:0.35rem;margin-left:0.1rem;"></i>'
-                        : ""
-                }
-                    </div>
-                `;
+                html += `<div class="monitor-item">
+                    <span class="monitor-name">${mon.name}</span>
+                    <span class="monitor-ws ${focusedClass}">${ws}</span>
+                    ${mon.focused ? '<i class="fas fa-circle" style="color:var(--red);font-size:0.4rem;margin-left:0.1rem;"></i>' : ""}
+                </div>`;
             });
             container.innerHTML = html;
         }
 
         function fetchMonitors() {
-            fetch("/monitors")
-                .then((res) => res.json())
-                .then((data) => {
-                    if (Array.isArray(data)) {
-                        updateMonitorsUI(data);
-                        highlightWorkspaceButtons(data);
-                    } else {
-                        console.error("Unexpected monitors data:", data);
-                    }
-                })
-                .catch((err) => console.error("Error fetching monitors:", err));
+            fetch("/monitors").then(r => r.json()).then((data) => {
+                if (Array.isArray(data)) { updateMonitorsUI(data); highlightWorkspaceButtons(data); }
+                else console.error("Unexpected monitors data:", data);
+            }).catch(err => console.error("Error fetching monitors:", err));
         }
 
         function switchWorkspace(workspaceId) {
             const btn = document.getElementById(`workspace-${workspaceId}`);
-            if (btn) {
-                btn.classList.add("click-flash");
-                setTimeout(() => btn.classList.remove("click-flash"), 700);
-            }
-
+            if (btn) { btn.classList.add("click-flash"); setTimeout(() => btn.classList.remove("click-flash"), 700); }
             fetch("/workspace/switch", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ workspace: workspaceId }),
-            })
-                .then((response) => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log("Success:", data);
-                    fetchMonitors();
-                    getVolume();
-                    fetchMedia();
-                    fetchWindows();
-                })
-                .catch((err) => console.error("Error switching workspace:", err));
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ workspace: workspaceId })
+            }).then(response => { if (!response.ok) throw new Error("Network response was not ok"); return response.json(); })
+            .then(data => { console.log("Success:", data); fetchMonitors(); getVolume(); fetchMedia(); fetchWindows(); })
+            .catch(err => console.error("Error switching workspace:", err));
         }
 
         // ================================================================
         // FUNÇÕES DE VOLUME (com slider)
         // ================================================================
-
         let isVolumeDragging = false;
 
         function getVolume() {
-            fetch("/volume")
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.volume !== undefined) {
-                        const display = document.getElementById("volume-display");
-                        const slider = document.getElementById("volume-slider");
-                        display.textContent = data.muted ? "MUTED" : data.volume + "%";
-                        if (!isVolumeDragging) {
-                            slider.value = data.volume;
-                        }
-                        const muteIcon = document.querySelector("#vol-mute-btn i");
-                        if (data.muted) {
-                            muteIcon.className = "fas fa-volume-off";
-                        } else {
-                            muteIcon.className = "fas fa-volume-mute";
-                        }
-                    }
-                })
-                .catch((err) => console.error("Erro ao obter volume:", err));
+            fetch("/volume").then(response => response.json()).then((data) => {
+                if (data.volume !== undefined) {
+                    const display = document.getElementById("volume-display");
+                    const slider = document.getElementById("volume-slider");
+                    display.textContent = data.muted ? "MUTED" : data.volume + "%";
+                    if (!isVolumeDragging) slider.value = data.volume;
+                    const muteIcon = document.querySelector("#vol-mute-btn i");
+                    muteIcon.className = data.muted ? "fas fa-volume-off" : "fas fa-volume-mute";
+                }
+            }).catch(err => console.error("Erro ao obter volume:", err));
         }
 
         function setVolume(value) {
             fetch("/volume/control", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "set", value: parseInt(value) }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.volume !== undefined) {
-                        const display = document.getElementById("volume-display");
-                        display.textContent = data.muted ? "MUTED" : data.volume + "%";
-                    }
-                })
-                .catch((err) => console.error("Erro ao ajustar volume:", err));
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "set", value: parseInt(value) })
+            }).then(response => response.json()).then((data) => {
+                if (data.volume !== undefined) document.getElementById("volume-display").textContent = data.muted ? "MUTED" : data.volume + "%";
+            }).catch(err => console.error("Erro ao ajustar volume:", err));
         }
 
         function toggleMute() {
             fetch("/volume/control", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "toggle-mute" }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.volume !== undefined) {
-                        const display = document.getElementById("volume-display");
-                        const slider = document.getElementById("volume-slider");
-                        display.textContent = data.muted ? "MUTED" : data.volume + "%";
-                        slider.value = data.volume;
-                        const muteIcon = document.querySelector("#vol-mute-btn i");
-                        if (data.muted) {
-                            muteIcon.className = "fas fa-volume-off";
-                        } else {
-                            muteIcon.className = "fas fa-volume-mute";
-                        }
-                    }
-                })
-                .catch((err) => console.error("Erro ao mutar/desmutar:", err));
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "toggle-mute" })
+            }).then(response => response.json()).then((data) => {
+                if (data.volume !== undefined) {
+                    document.getElementById("volume-display").textContent = data.muted ? "MUTED" : data.volume + "%";
+                    document.getElementById("volume-slider").value = data.volume;
+                    const muteIcon = document.querySelector("#vol-mute-btn i");
+                    muteIcon.className = data.muted ? "fas fa-volume-off" : "fas fa-volume-mute";
+                }
+            }).catch(err => console.error("Erro ao mutar/desmutar:", err));
         }
 
         // ================================================================
         // FUNÇÕES DE MÍDIA (playerctl)
         // ================================================================
-
         let mediaPosInterval = null;
 
         function fetchMedia() {
-            fetch("/media")
-                .then((res) => {
-                    if (!res.ok) throw new Error("Erro ao buscar mídia");
-                    return res.json();
-                })
-                .then((data) => {
-                    updateMediaUI(data);
-                    fetchMediaPosition(); // Atualiza posição inicial
-                })
-                .catch((err) => {
-                    console.error("Erro ao buscar mídia:", err);
-                    updateMediaUI({
-                        title: "Nenhuma mídia",
-                        artist: "-",
-                        status: "Stopped",
-                        art_url: "",
-                    });
-                });
+            fetch("/media").then(res => { if (!res.ok) throw new Error("Erro ao buscar mídia"); return res.json(); })
+            .then(data => { updateMediaUI(data); fetchMediaPosition(); })
+            .catch(err => {
+                console.error("Erro ao buscar mídia:", err);
+                updateMediaUI({ title: "Nenhuma mídia", artist: "-", status: "Stopped", art_url: "" });
+            });
         }
 
         function updateMediaUI(data) {
@@ -1309,17 +795,11 @@
 
             titleEl.textContent = data.title || "Nenhuma mídia";
             artistEl.textContent = data.artist || "-";
-
             let statusText = "⏹ parado";
             if (data.status === "Playing") statusText = "▶ tocando";
             else if (data.status === "Paused") statusText = "⏸ pausado";
             statusEl.textContent = statusText;
-
-            if (data.status === "Playing") {
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
+            playBtn.innerHTML = data.status === "Playing" ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
 
             if (data.art_url && data.art_url.length > 0) {
                 artEl.innerHTML = `<img src="${data.art_url}" alt="capa" onerror="this.parentElement.innerHTML='<div class=\\'placeholder\\'>no cover</div>'" />`;
@@ -1327,63 +807,35 @@
                 artEl.innerHTML = `<div class="placeholder">no cover</div>`;
             }
 
-            // Gerenciar intervalo de atualização da posição
-            if (mediaPosInterval) {
-                clearInterval(mediaPosInterval);
-                mediaPosInterval = null;
-            }
-            // Atualiza a posição a cada 1s apenas se estiver tocando
-            if (data.status === "Playing") {
-                mediaPosInterval = setInterval(fetchMediaPosition, 1000);
-            } else {
-                // Atualiza uma vez para mostrar a posição atual (pausada/parada)
-                fetchMediaPosition();
-            }
+            if (mediaPosInterval) { clearInterval(mediaPosInterval); mediaPosInterval = null; }
+            if (data.status === "Playing") mediaPosInterval = setInterval(fetchMediaPosition, 1000);
+            else fetchMediaPosition();
         }
 
         function mediaControl(action) {
             fetch("/media/control", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: action }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    updateMediaUI(data);
-                })
-                .catch((err) => {
-                    console.error("Erro no controle de mídia:", err);
-                });
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: action })
+            }).then(res => res.json()).then(data => updateMediaUI(data))
+            .catch(err => console.error("Erro no controle de mídia:", err));
         }
 
         // ================================================================
         // FUNÇÕES DE POSIÇÃO / BARRA DE PROGRESSO
         // ================================================================
-
         function fetchMediaPosition() {
-            fetch("/media/position")
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.warn("Erro ao buscar posição:", data.error);
-                        return;
-                    }
-                    const currentTime = document.getElementById("media-current-time");
-                    const durationEl = document.getElementById("media-duration");
-                    const progressFill = document.getElementById("media-progress-fill");
-
-                    if (data.duration > 0) {
-                        const pct = Math.min(100, (data.position / data.duration) * 100);
-                        progressFill.style.width = pct + '%';
-                        currentTime.textContent = formatTime(data.position);
-                        durationEl.textContent = formatTime(data.duration);
-                    } else {
-                        progressFill.style.width = '0%';
-                        currentTime.textContent = "0:00";
-                        durationEl.textContent = "0:00";
-                    }
-                })
-                .catch((err) => console.error("Erro ao buscar posição:", err));
+            fetch("/media/position").then(res => res.json()).then((data) => {
+                if (data.error) { console.warn("Erro ao buscar posição:", data.error); return; }
+                const currentTime = document.getElementById("media-current-time");
+                const durationEl = document.getElementById("media-duration");
+                const progressFill = document.getElementById("media-progress-fill");
+                if (data.duration > 0) {
+                    const pct = Math.min(100, (data.position / data.duration) * 100);
+                    progressFill.style.width = pct + '%';
+                    currentTime.textContent = formatTime(data.position);
+                    durationEl.textContent = formatTime(data.duration);
+                } else { progressFill.style.width = '0%'; currentTime.textContent = "0:00"; durationEl.textContent = "0:00"; }
+            }).catch(err => console.error("Erro ao buscar posição:", err));
         }
 
         function formatTime(seconds) {
@@ -1396,276 +848,125 @@
         // ================================================================
         // LOCK SCREEN
         // ================================================================
-
         function lockScreen() {
-            fetch("/lock", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            })
-                .then((response) => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log("Lock screen:", data.message);
-                    document.getElementById("screenshot-result").textContent =
-                        "🔒 Screen locked!";
-                    setTimeout(() => {
-                        document.getElementById("screenshot-result").textContent = "";
-                    }, 3000);
-                })
-                .catch((err) => {
-                    console.error("Error locking screen:", err);
-                    document.getElementById("screenshot-result").textContent =
-                        "❌ Error locking screen";
-                });
+            fetch("/lock", { method: "POST", headers: { "Content-Type": "application/json" } })
+            .then(response => { if (!response.ok) throw new Error("Network response was not ok"); return response.json(); })
+            .then(data => { console.log("Lock screen:", data.message); document.getElementById("screenshot-result").textContent = "🔒 Screen locked!"; setTimeout(() => document.getElementById("screenshot-result").textContent = "", 3000); })
+            .catch(err => { console.error("Error locking screen:", err); document.getElementById("screenshot-result").textContent = "❌ Error locking screen"; });
         }
 
         // ================================================================
         // WLOGOUT
         // ================================================================
-
         function runWlogout() {
-            fetch("/wlogout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            })
-                .then((response) => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
-                })
-                .then((data) => {
-                    console.log("Wlogout:", data.message);
-                    document.getElementById("screenshot-result").textContent =
-                        "🚪 Wlogout launched!";
-                    setTimeout(() => {
-                        document.getElementById("screenshot-result").textContent = "";
-                    }, 3000);
-                })
-                .catch((err) => {
-                    console.error("Error launching wlogout:", err);
-                    document.getElementById("screenshot-result").textContent =
-                        "❌ Error launching wlogout";
-                });
+            fetch("/wlogout", { method: "POST", headers: { "Content-Type": "application/json" } })
+            .then(response => { if (!response.ok) throw new Error("Network response was not ok"); return response.json(); })
+            .then(data => { console.log("Wlogout:", data.message); document.getElementById("screenshot-result").textContent = "🚪 Wlogout launched!"; setTimeout(() => document.getElementById("screenshot-result").textContent = "", 3000); })
+            .catch(err => { console.error("Error launching wlogout:", err); document.getElementById("screenshot-result").textContent = "❌ Error launching wlogout"; });
         }
 
         // ================================================================
         // FUNÇÕES DE SISTEMA
         // ================================================================
-
         let sysInterval = null;
 
         function fetchSystemStats() {
-            fetch("/system/stats")
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) {
-                        document.getElementById("sys-cpu-pct").textContent = "--%";
-                        document.getElementById("sys-ram-pct").textContent = "--%";
-                        return;
-                    }
-                    // CPU
-                    document.getElementById("sys-cpu-pct").textContent = data.cpu.percent + "%";
-                    document.getElementById("sys-cpu-bar").style.width = data.cpu.percent + "%";
-                    document.getElementById("sys-cpu-temp").textContent =
-                        data.cpu.temp !== null ? data.cpu.temp + "°C" : "--°C";
-                    document.getElementById("sys-cpu-freq").textContent =
-                        data.cpu.freq !== null ? data.cpu.freq + " GHz" : "-- GHz";
-
-                    // RAM
-                    document.getElementById("sys-ram-pct").textContent = data.ram.percent + "%";
-                    document.getElementById("sys-ram-bar").style.width = data.ram.percent + "%";
-                    document.getElementById("sys-ram-used").textContent =
-                        data.ram.used + " / " + data.ram.total + " GB";
-
-                    // GPU
-                    const gpuContainer = document.getElementById("gpu-container");
-                    if (data.gpu) {
-                        gpuContainer.style.display = "block";
-                        document.getElementById("sys-gpu-pct").textContent = data.gpu.util + "%";
-                        document.getElementById("sys-gpu-bar").style.width = data.gpu.util + "%";
-                        document.getElementById("sys-gpu-vram").textContent =
-                            "VRAM " + data.gpu.vram_used + " / " + data.gpu.vram_total + " MB";
-                        document.getElementById("sys-gpu-temp").textContent = data.gpu.temp + "°C";
-                    } else {
-                        gpuContainer.style.display = "none";
-                    }
-
-                    // Processos
-                    const list = document.getElementById("sys-process-list");
-                    if (data.processes && data.processes.length) {
-                        list.innerHTML = data.processes
-                            .map(
-                                (p) =>
-                                    `<div class="flex justify-between border-b border-zinc-800 py-0.5">
-                                <span class="truncate max-w-[60%]">${p.name}</span>
-                                <span>${p.mem}% mem · ${p.cpu}% cpu</span>
-                            </div>`
-                            )
-                            .join("");
-                    } else {
-                        list.innerHTML = '<span class="text-zinc-600">Nenhum processo</span>';
-                    }
-                })
-                .catch((err) => {
-                    console.error("Erro ao buscar stats:", err);
-                });
+            fetch("/system/stats").then(res => res.json()).then((data) => {
+                if (data.error) { document.getElementById("sys-cpu-pct").textContent = "--%"; document.getElementById("sys-ram-pct").textContent = "--%"; return; }
+                document.getElementById("sys-cpu-pct").textContent = data.cpu.percent + "%";
+                document.getElementById("sys-cpu-bar").style.width = data.cpu.percent + "%";
+                document.getElementById("sys-cpu-temp").textContent = data.cpu.temp !== null ? data.cpu.temp + "°C" : "--°C";
+                document.getElementById("sys-cpu-freq").textContent = data.cpu.freq !== null ? data.cpu.freq + " GHz" : "-- GHz";
+                document.getElementById("sys-ram-pct").textContent = data.ram.percent + "%";
+                document.getElementById("sys-ram-bar").style.width = data.ram.percent + "%";
+                document.getElementById("sys-ram-used").textContent = data.ram.used + " / " + data.ram.total + " GB";
+                const gpuContainer = document.getElementById("gpu-container");
+                if (data.gpu) {
+                    gpuContainer.style.display = "block";
+                    document.getElementById("sys-gpu-pct").textContent = data.gpu.util + "%";
+                    document.getElementById("sys-gpu-bar").style.width = data.gpu.util + "%";
+                    document.getElementById("sys-gpu-vram").textContent = "VRAM " + data.gpu.vram_used + " / " + data.gpu.vram_total + " MB";
+                    document.getElementById("sys-gpu-temp").textContent = data.gpu.temp + "°C";
+                } else gpuContainer.style.display = "none";
+                const list = document.getElementById("sys-process-list");
+                if (data.processes && data.processes.length) {
+                    list.innerHTML = data.processes.map(p => `<div class="flex justify-between border-b border-zinc-800 py-0.5"><span class="truncate max-w-[60%]">${p.name}</span><span>${p.mem}% mem · ${p.cpu}% cpu</span></div>`).join("");
+                } else list.innerHTML = '<span class="text-zinc-600">Nenhum processo</span>';
+            }).catch(err => console.error("Erro ao buscar stats:", err));
         }
 
         // ================================================================
         // FUNÇÕES DE MICROFONE
         // ================================================================
-
         let micInterval = null;
         let isMicDragging = false;
 
         function fetchMicStatus() {
-            fetch("/mic/status")
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.error) return;
-                    const display = document.getElementById("mic-volume-display");
-                    const slider = document.getElementById("mic-slider");
-                    if (!isMicDragging) {
-                        display.textContent = data.muted ? "MUTED" : data.volume + "%";
-                        slider.value = data.volume;
-                    }
-                    const muteBtn = document.getElementById("mic-mute-btn");
-                    const icon = muteBtn.querySelector("i");
-                    if (data.muted) {
-                        icon.className = "fas fa-microphone-slash";
-                        muteBtn.style.color = "#ff5252";
-                        document.getElementById("mic-status-text").textContent = "🔇 MUTADO";
-                    } else {
-                        icon.className = "fas fa-microphone";
-                        muteBtn.style.color = "";
-                        document.getElementById("mic-status-text").textContent = "🔊 Ativo (" + data.volume + "%)";
-                    }
-                })
-                .catch((err) => console.error("Erro ao buscar status do microfone:", err));
+            fetch("/mic/status").then(res => res.json()).then((data) => {
+                if (data.error) return;
+                const display = document.getElementById("mic-volume-display");
+                const slider = document.getElementById("mic-slider");
+                if (!isMicDragging) { display.textContent = data.muted ? "MUTED" : data.volume + "%"; slider.value = data.volume; }
+                const muteBtn = document.getElementById("mic-mute-btn");
+                const icon = muteBtn.querySelector("i");
+                if (data.muted) { icon.className = "fas fa-microphone-slash"; muteBtn.style.color = "#ff5252"; document.getElementById("mic-status-text").textContent = "🔇 MUTADO"; }
+                else { icon.className = "fas fa-microphone"; muteBtn.style.color = ""; document.getElementById("mic-status-text").textContent = "🔊 Ativo (" + data.volume + "%)"; }
+            }).catch(err => console.error("Erro ao buscar status do microfone:", err));
         }
 
         function toggleMicMute() {
-            fetch("/mic/mute", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.ok) fetchMicStatus();
-                })
-                .catch((err) => console.error("Erro ao mutar microfone:", err));
+            fetch("/mic/mute", { method: "POST", headers: { "Content-Type": "application/json" } })
+            .then(res => res.json()).then(data => { if (data.ok) fetchMicStatus(); })
+            .catch(err => console.error("Erro ao mutar microfone:", err));
         }
 
         function fetchMicSources() {
-            fetch("/mic/sources")
-                .then((res) => res.json())
-                .then((sources) => {
-                    const list = document.getElementById("mic-source-list");
-                    if (!sources || !sources.length) {
-                        list.innerHTML = '<span class="text-zinc-600">Nenhuma fonte encontrada</span>';
-                        return;
-                    }
-                    list.innerHTML = sources
-                        .map(
-                            (s) =>
-                                `<div class="flex justify-between border-b border-zinc-800 py-0.5 cursor-pointer hover:bg-zinc-800 source-item" data-id="${s.id}">
-                            <span class="truncate">${s.name}</span>
-                            <span class="text-[0.45rem] text-zinc-500">definir</span>
-                        </div>`
-                        )
-                        .join("");
-                    list.querySelectorAll(".source-item").forEach((el) => {
-                        el.addEventListener("click", function () {
-                            const id = this.dataset.id;
-                            fetch("/mic/source", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ id: id }),
-                            })
-                                .then((res) => res.json())
-                                .then((data) => {
-                                    if (data.ok) {
-                                        fetchMicSources();
-                                        fetchMicStatus();
-                                    }
-                                });
-                        });
+            fetch("/mic/sources").then(res => res.json()).then((sources) => {
+                const list = document.getElementById("mic-source-list");
+                if (!sources || !sources.length) { list.innerHTML = '<span class="text-zinc-600">Nenhuma fonte encontrada</span>'; return; }
+                list.innerHTML = sources.map(s => `<div class="flex justify-between border-b border-zinc-800 py-0.5 cursor-pointer hover:bg-zinc-800 source-item" data-id="${s.id}"><span class="truncate">${s.name}</span><span class="text-[0.5rem] text-zinc-500">definir</span></div>`).join("");
+                list.querySelectorAll(".source-item").forEach(el => {
+                    el.addEventListener("click", function () {
+                        const id = this.dataset.id;
+                        fetch("/mic/source", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: id }) })
+                        .then(res => res.json()).then(data => { if (data.ok) { fetchMicSources(); fetchMicStatus(); } });
                     });
-                })
-                .catch((err) => console.error("Erro ao listar fontes:", err));
+                });
+            }).catch(err => console.error("Erro ao listar fontes:", err));
         }
 
         // Inicialização dos sliders
         document.addEventListener("DOMContentLoaded", function () {
-            // Microfone
             const micSlider = document.getElementById("mic-slider");
             if (micSlider) {
                 micSlider.addEventListener("pointerdown", () => { isMicDragging = true; });
-                micSlider.addEventListener("input", function () {
-                    document.getElementById("mic-volume-display").textContent = this.value + "%";
-                });
-                micSlider.addEventListener("change", function () {
-                    isMicDragging = false;
-                    fetch("/mic/volume", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ pct: parseInt(this.value) }),
-                    })
-                        .then((res) => res.json())
-                        .then((data) => {
-                            if (data.ok) fetchMicStatus();
-                        });
-                });
+                micSlider.addEventListener("input", function () { document.getElementById("mic-volume-display").textContent = this.value + "%"; });
+                micSlider.addEventListener("change", function () { isMicDragging = false; fetch("/mic/volume", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pct: parseInt(this.value) }) }).then(res => res.json()).then(data => { if (data.ok) fetchMicStatus(); }); });
             }
-
-            // Volume principal
             const volSlider = document.getElementById("volume-slider");
             if (volSlider) {
-                volSlider.addEventListener("pointerdown", () => {
-                    isVolumeDragging = true;
-                });
-                volSlider.addEventListener("input", function () {
-                    document.getElementById("volume-display").textContent = this.value + "%";
-                });
-                volSlider.addEventListener("change", function () {
-                    isVolumeDragging = false;
-                    setVolume(this.value);
-                });
+                volSlider.addEventListener("pointerdown", () => { isVolumeDragging = true; });
+                volSlider.addEventListener("input", function () { document.getElementById("volume-display").textContent = this.value + "%"; });
+                volSlider.addEventListener("change", function () { isVolumeDragging = false; setVolume(this.value); });
             }
         });
 
         // ================================================================
         // FUNÇÕES DE JANELAS
         // ================================================================
-
         let winInterval = null;
         let windowsData = [];
 
         function fetchWindows() {
-            fetch("/windows")
-                .then((res) => res.json())
-                .then((windows) => {
-                    const container = document.getElementById("windows-list");
-                    const count = document.getElementById("win-count");
-                    if (!windows || windows.length === 0) {
-                        container.innerHTML = '<div class="text-zinc-600 text-[0.45rem] text-center py-2">Nenhuma janela aberta</div>';
-                        count.textContent = "0";
-                        windowsData = [];
-                        return;
-                    }
-                    count.textContent = windows.length;
-
-                    if (windowsData.length === 0) {
-                        renderWindows(container, windows);
-                        windowsData = windows;
-                        return;
-                    }
-
-                    updateWindows(container, windows);
-                    windowsData = windows;
-                })
-                .catch((err) => console.error("Erro ao buscar janelas:", err));
+            fetch("/windows").then(res => res.json()).then((windows) => {
+                const container = document.getElementById("windows-list");
+                const count = document.getElementById("win-count");
+                if (!windows || windows.length === 0) { container.innerHTML = '<div class="text-zinc-600 text-[0.5rem] text-center py-2">Nenhuma janela aberta</div>'; count.textContent = "0"; windowsData = []; return; }
+                count.textContent = windows.length;
+                if (windowsData.length === 0) { renderWindows(container, windows); windowsData = windows; return; }
+                updateWindows(container, windows);
+                windowsData = windows;
+            }).catch(err => console.error("Erro ao buscar janelas:", err));
         }
 
         function renderWindows(container, windows) {
@@ -1673,31 +974,23 @@
             windows.forEach((w) => {
                 const focusedClass = w.focused ? "focused" : "";
                 const ws = w.workspace !== null ? w.workspace : "?";
-                html += `
-                    <div class="window-item ${focusedClass}" data-address="${w.address}">
-                        <span class="win-title" title="${w.title}">${w.title || w.class || "Sem título"}</span>
-                        <span class="win-ws">WS ${ws}</span>
-                        <div class="win-actions">
-                            <select class="win-move-select" data-address="${w.address}">
-                                ${Array.from({length: 10}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
-                            </select>
-                            <button class="win-move-btn" data-address="${w.address}" title="Mover"><i class="fas fa-arrow-right"></i></button>
-                            <button class="focus-btn" data-address="${w.address}" title="Focar"><i class="fas fa-eye"></i></button>
-                            <button class="kill-btn" data-address="${w.address}" title="Fechar"><i class="fas fa-times"></i></button>
-                        </div>
+                html += `<div class="window-item ${focusedClass}" data-address="${w.address}">
+                    <span class="win-title" title="${w.title}">${w.title || w.class || "Sem título"}</span>
+                    <span class="win-ws">WS ${ws}</span>
+                    <div class="win-actions">
+                        <select class="win-move-select" data-address="${w.address}">${Array.from({length: 10}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}</select>
+                        <button class="win-move-btn" data-address="${w.address}" title="Mover"><i class="fas fa-arrow-right"></i></button>
+                        <button class="focus-btn" data-address="${w.address}" title="Focar"><i class="fas fa-eye"></i></button>
+                        <button class="kill-btn" data-address="${w.address}" title="Fechar"><i class="fas fa-times"></i></button>
                     </div>
-                `;
+                </div>`;
             });
             container.innerHTML = html;
         }
 
         function updateWindows(container, windows) {
             const items = container.querySelectorAll('.window-item');
-            if (items.length !== windows.length) {
-                renderWindows(container, windows);
-                return;
-            }
-
+            if (items.length !== windows.length) { renderWindows(container, windows); return; }
             items.forEach((item, index) => {
                 const w = windows[index];
                 if (!w) return;
@@ -1712,175 +1005,90 @@
             });
         }
 
-        // ================================================================
-        // EVENTO ÚNICO PARA A ABA JANELAS (delegação)
-        // ================================================================
         document.getElementById('windows-list').addEventListener('click', function(e) {
             const target = e.target.closest('button');
             if (!target) return;
             const address = target.dataset.address;
             if (!address) return;
-
             const item = target.closest('.window-item');
             const select = item ? item.querySelector('.win-move-select') : null;
-
             if (target.classList.contains('win-move-btn')) {
-                if (select) {
-                    const workspace = parseInt(select.value);
-                    if (!workspace || workspace < 1 || workspace > 10) return;
-                    moveWindow(address, workspace);
-                }
-            } else if (target.classList.contains('focus-btn')) {
-                focusWindow(address);
-            } else if (target.classList.contains('kill-btn')) {
-                killWindow(address);
-            }
+                if (select) { const workspace = parseInt(select.value); if (!workspace || workspace < 1 || workspace > 10) return; moveWindow(address, workspace); }
+            } else if (target.classList.contains('focus-btn')) { focusWindow(address); }
+            else if (target.classList.contains('kill-btn')) { killWindow(address); }
         });
 
-        // ================================================================
-        // AÇÕES DAS JANELAS
-        // ================================================================
-
         function focusWindow(address) {
-            fetch("/window/focus", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: address }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.ok) {
-                        fetchWindows();
-                        fetchMonitors();
-                    }
-                })
-                .catch((err) => console.error("Erro ao focar janela:", err));
+            fetch("/window/focus", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address: address }) })
+            .then(res => res.json()).then(data => { if (data.ok) { fetchWindows(); fetchMonitors(); } })
+            .catch(err => console.error("Erro ao focar janela:", err));
         }
-
         function moveWindow(address, workspace) {
-            if (!workspace || workspace < 1 || workspace > 10) {
-                alert("Workspace inválido (1-10)");
-                return;
-            }
-            fetch("/window/move", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: address, workspace: workspace }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.ok) {
-                        fetchWindows();
-                        fetchMonitors();
-                    }
-                })
-                .catch((err) => console.error("Erro ao mover janela:", err));
+            if (!workspace || workspace < 1 || workspace > 10) { alert("Workspace inválido (1-10)"); return; }
+            fetch("/window/move", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address: address, workspace: workspace }) })
+            .then(res => res.json()).then(data => { if (data.ok) { fetchWindows(); fetchMonitors(); } })
+            .catch(err => console.error("Erro ao mover janela:", err));
         }
-
         function killWindow(address) {
             if (!confirm("Fechar esta janela?")) return;
-            fetch("/window/kill", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: address }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.ok) {
-                        fetchWindows();
-                        fetchMonitors();
-                    }
-                })
-                .catch((err) => console.error("Erro ao fechar janela:", err));
+            fetch("/window/kill", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address: address }) })
+            .then(res => res.json()).then(data => { if (data.ok) { fetchWindows(); fetchMonitors(); } })
+            .catch(err => console.error("Erro ao fechar janela:", err));
         }
 
         // ================================================================
         // FUNÇÕES DA ABA TERMINAL
         // ================================================================
-
         let cmdGrid = document.getElementById('cmd-grid');
         let cmdOutput = document.getElementById('cmd-output');
 
         function loadCommands() {
-            fetch('/commands/list')
-                .then(res => res.json())
-                .then(commands => {
-                    cmdGrid.innerHTML = '';
-                    commands.forEach(cmd => {
-                        const btn = document.createElement('button');
-                        btn.className = 'cmd-btn';
-                        btn.textContent = cmd.label;
-                        btn.dataset.id = cmd.id;
-                        btn.dataset.confirm = cmd.confirm || false;
-                        btn.addEventListener('click', function() {
-                            const id = this.dataset.id;
-                            const confirmRequired = this.dataset.confirm === 'true';
-                            if (confirmRequired && !confirm(`Executar "${this.textContent}"?`)) {
-                                return;
-                            }
-                            executeCommand(id);
-                        });
-                        cmdGrid.appendChild(btn);
+            fetch('/commands/list').then(res => res.json()).then(commands => {
+                cmdGrid.innerHTML = '';
+                commands.forEach(cmd => {
+                    const btn = document.createElement('button');
+                    btn.className = 'cmd-btn';
+                    btn.textContent = cmd.label;
+                    btn.dataset.id = cmd.id;
+                    btn.dataset.confirm = cmd.confirm || false;
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const confirmRequired = this.dataset.confirm === 'true';
+                        if (confirmRequired && !confirm(`Executar "${this.textContent}"?`)) return;
+                        executeCommand(id);
                     });
-                })
-                .catch(err => {
-                    cmdOutput.textContent = 'Erro ao carregar comandos.';
-                    console.error('Erro ao carregar comandos:', err);
+                    cmdGrid.appendChild(btn);
                 });
+            }).catch(err => { cmdOutput.textContent = 'Erro ao carregar comandos.'; console.error('Erro ao carregar comandos:', err); });
         }
 
         function executeCommand(id) {
             cmdOutput.textContent = 'Executando...';
             cmdOutput.className = 'cmd-output';
-            fetch('/exec', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    cmdOutput.innerHTML = `<span class="error">✗ ${data.error}</span>`;
-                } else if (data.ok) {
-                    cmdOutput.innerHTML = `<span class="success">✓ OK (código ${data.code})</span>\n${data.output}`;
-                } else {
-                    cmdOutput.innerHTML = `<span class="error">✗ Erro (código ${data.code})</span>\n${data.output}`;
-                }
-            })
-            .catch(err => {
-                cmdOutput.innerHTML = `<span class="error">✗ Erro: ${err.message}</span>`;
-            });
+            fetch('/exec', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id }) })
+            .then(res => res.json()).then(data => {
+                if (data.error) cmdOutput.innerHTML = `<span class="error">✗ ${data.error}</span>`;
+                else if (data.ok) cmdOutput.innerHTML = `<span class="success">✓ OK (código ${data.code})</span>\n${data.output}`;
+                else cmdOutput.innerHTML = `<span class="error">✗ Erro (código ${data.code})</span>\n${data.output}`;
+            }).catch(err => cmdOutput.innerHTML = `<span class="error">✗ Erro: ${err.message}</span>`);
         }
 
         // ================================================================
         // FUNÇÕES DA ABA NOTIFICAÇÕES
         // ================================================================
-
         let notifInterval = null;
 
         function loadNotifications() {
-            fetch("/notifications")
-                .then(res => res.json())
-                .then(notifications => {
-                    renderNotifications(notifications);
-                })
-                .catch(err => {
-                    document.getElementById("notif-list").innerHTML = '<div class="notif-empty">Erro ao carregar notificações.</div>';
-                });
+            fetch("/notifications").then(res => res.json()).then(notifications => { renderNotifications(notifications); })
+            .catch(err => { document.getElementById("notif-list").innerHTML = '<div class="notif-empty">Erro ao carregar notificações.</div>'; });
         }
 
         function renderNotifications(notifications) {
             const list = document.getElementById("notif-list");
             const countEl = document.getElementById("notif-count");
-
             const unread = notifications.filter(n => !n.read).length;
             countEl.textContent = unread > 0 ? `${unread} não lidas` : '0 não lidas';
-
-            if (!notifications || notifications.length === 0) {
-                list.innerHTML = '<div class="notif-empty">Nenhuma notificação.</div>';
-                return;
-            }
-
+            if (!notifications || notifications.length === 0) { list.innerHTML = '<div class="notif-empty">Nenhuma notificação.</div>'; return; }
             let html = '';
             notifications.forEach(n => {
                 const isRead = n.read || false;
@@ -1889,117 +1097,59 @@
                 const body = n.body || '';
                 const time = n.timestamp ? new Date(n.timestamp).toLocaleString() : '';
                 const icon = n.app_icon || 'fa-bell';
-                html += `
-                    <div class="notif-item ${isRead ? 'read' : ''}" data-id="${n.id}">
-                        <div class="notif-icon"><i class="fas ${icon}"></i></div>
-                        <div class="notif-content">
-                            <div class="notif-title">${summary}</div>
-                            <div class="notif-body">${body}</div>
-                            <div class="notif-app">${app}</div>
-                            <div class="notif-time">${time}</div>
-                        </div>
-                        <div class="notif-actions">
-                            ${!isRead ? `<button class="read-btn" data-id="${n.id}" title="Marcar como lida"><i class="fas fa-check"></i></button>` : ''}
-                        </div>
+                html += `<div class="notif-item ${isRead ? 'read' : ''}" data-id="${n.id}">
+                    <div class="notif-icon"><i class="fas ${icon}"></i></div>
+                    <div class="notif-content">
+                        <div class="notif-title">${summary}</div>
+                        <div class="notif-body">${body}</div>
+                        <div class="notif-app">${app}</div>
+                        <div class="notif-time">${time}</div>
                     </div>
-                `;
+                    <div class="notif-actions">
+                        ${!isRead ? `<button class="read-btn" data-id="${n.id}" title="Marcar como lida"><i class="fas fa-check"></i></button>` : ''}
+                    </div>
+                </div>`;
             });
             list.innerHTML = html;
-
-            // Eventos dos botões
             list.querySelectorAll('.read-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const id = parseInt(this.dataset.id);
-                    markNotificationRead(id);
-                });
+                btn.addEventListener('click', function(e) { e.stopPropagation(); const id = parseInt(this.dataset.id); markNotificationRead(id); });
             });
         }
 
         function markNotificationRead(id) {
-            fetch("/notifications/read", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) loadNotifications();
-            })
+            fetch("/notifications/read", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: id }) })
+            .then(res => res.json()).then(data => { if (data.ok) loadNotifications(); })
             .catch(err => console.error("Erro ao marcar como lida:", err));
         }
 
-        // Eventos dos botões em massa
         document.getElementById('notif-mark-all-read').addEventListener('click', function() {
-            fetch("/notifications/read", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ all: true })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) loadNotifications();
-            });
+            fetch("/notifications/read", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ all: true }) })
+            .then(res => res.json()).then(data => { if (data.ok) loadNotifications(); });
         });
-
         document.getElementById('notif-clear-read').addEventListener('click', function() {
-            fetch("/notifications/clear", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ read_only: true })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) loadNotifications();
-            });
+            fetch("/notifications/clear", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ read_only: true }) })
+            .then(res => res.json()).then(data => { if (data.ok) loadNotifications(); });
         });
-
         document.getElementById('notif-clear-all').addEventListener('click', function() {
             if (!confirm("Remover todas as notificações?")) return;
-            fetch("/notifications/clear", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({})
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) loadNotifications();
-            });
+            fetch("/notifications/clear", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) })
+            .then(res => res.json()).then(data => { if (data.ok) loadNotifications(); });
         });
 
-        // ================================================================
-        // ENVIO DE NOTIFICAÇÃO DO PAINEL PARA O DESKTOP
-        // ================================================================
         document.getElementById('notify-send-btn').addEventListener('click', function() {
             const summary = document.getElementById('notify-summary').value.trim();
             const body = document.getElementById('notify-body').value.trim();
-            if (!summary) {
-                alert('Informe um título para a notificação');
-                return;
-            }
-            fetch('/notify/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ summary: summary, body: body })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    document.getElementById('notify-summary').value = '';
-                    document.getElementById('notify-body').value = '';
-                    document.getElementById('screenshot-result').textContent = '✓ Notificação enviada';
-                    setTimeout(() => document.getElementById('screenshot-result').textContent = '', 3000);
-                } else {
-                    alert('Erro ao enviar: ' + (data.error || 'desconhecido'));
-                }
-            })
-            .catch(err => console.error('Erro ao enviar notificação:', err));
+            if (!summary) { alert('Informe um título para a notificação'); return; }
+            fetch('/notify/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ summary: summary, body: body }) })
+            .then(res => res.json()).then(data => {
+                if (data.ok) { document.getElementById('notify-summary').value = ''; document.getElementById('notify-body').value = ''; document.getElementById('screenshot-result').textContent = '✓ Notificação enviada'; setTimeout(() => document.getElementById('screenshot-result').textContent = '', 3000); }
+                else alert('Erro ao enviar: ' + (data.error || 'desconhecido'));
+            }).catch(err => console.error('Erro ao enviar notificação:', err));
         });
 
         // ================================================================
         // INICIALIZAÇÃO
         // ================================================================
-
         function init() {
             fetchMonitors();
             getVolume();
@@ -2010,7 +1160,6 @@
             fetchWindows();
             loadCommands();
             loadNotifications();
-
             if (sysInterval) clearInterval(sysInterval);
             sysInterval = setInterval(fetchSystemStats, 2000);
             if (micInterval) clearInterval(micInterval);
@@ -2023,13 +1172,7 @@
 
         document.addEventListener("DOMContentLoaded", init);
         window.addEventListener("focus", init);
-
-        setInterval(() => {
-            fetchMonitors();
-            getVolume();
-            fetchMedia();
-        }, 5000);
+        setInterval(() => { fetchMonitors(); getVolume(); fetchMedia(); }, 5000);
     </script>
-
 </body>
 </html>

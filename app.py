@@ -1,7 +1,7 @@
 import os
 if "DBUS_SESSION_BUS_ADDRESS" not in os.environ:
     os.environ["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path=/run/user/{os.getuid()}/bus"
-from flask import Flask, render_template, jsonify, request, Response, send_file
+from flask import Flask, render_template, jsonify, request, Response, send_file, send_from_directory  # <--- ADICIONADO send_from_directory
 import subprocess
 import random
 import os
@@ -38,6 +38,12 @@ def save_notifications(notifications):
 @app.route('/')
 def hello_world():
     return render_template('index.html')
+
+
+# ---------- ARQUIVOS ESTÁTICOS (assets) ----------
+@app.route('/assets/<path:filename>')
+def assets(filename):
+    return send_from_directory('assets', filename)
 
 
 # ---------- WORKSPACES ----------
@@ -614,7 +620,7 @@ COMMANDS = [
     {"id": "uptime", "label": "Uptime", "cmd": "uptime", "confirm": False},
     {"id": "free", "label": "Memória livre", "cmd": "free -h", "confirm": False},
     {"id": "df", "label": "Espaço em disco", "cmd": "df -h", "confirm": False},
-    {"id": "neofetch", "label": "Info sistema", "cmd": "neofetch", "confirm": False},
+    {"id": "fastfetch", "label": "Info sistema", "cmd": "fastfetch", "confirm": False},
     {"id": "lscpu", "label": "CPU info", "cmd": "lscpu", "confirm": False},
     {"id": "lsblk", "label": "Discos/partições", "cmd": "lsblk", "confirm": False},
     {"id": "ss_tulpn", "label": "Portas abertas", "cmd": "ss -tulpn", "confirm": False},
