@@ -160,6 +160,17 @@ def lock_screen():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------- WLOGOUT ----------
+
+@app.route('/wlogout', methods=['POST'])
+def run_wlogout():
+    try:
+        subprocess.Popen(['wlogout'], start_new_session=True)
+        return jsonify({'message': 'Wlogout launched'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ---------- MEDIA CONTROL (playerctl) ----------
 
 @app.route('/media/art')
