@@ -1,3 +1,6 @@
+import os
+if "DBUS_SESSION_BUS_ADDRESS" not in os.environ:
+    os.environ["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path=/run/user/{os.getuid()}/bus"
 from flask import Flask, render_template, jsonify, request, Response, send_file
 import subprocess
 import random
@@ -6,8 +9,30 @@ import re
 import json
 from urllib.parse import unquote
 import psutil
+from datetime import datetime
+
+# Importa o módulo de notificações em tempo real
+from notifications_bridge import start_watcher, stop_watcher, send_notification
 
 app = Flask(__name__)
+
+# Caminho para o arquivo de notificações
+NOTIFICATIONS_FILE = os.path.join(os.path.dirname(__file__), 'notifications.json')
+
+def load_notifications():
+    """Carrega a lista de notificações do JSON."""
+    if os.path.exists(NOTIFICATIONS_FILE):
+        try:
+            with open(NOTIFICATIONS_FILE, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return []
+    return []
+
+def save_notifications(notifications):
+    """Salva a lista de notificações no JSON."""
+    with open(NOTIFICATIONS_FILE, 'w') as f:
+        json.dump(notifications, f, indent=2)
 
 
 @app.route('/')
@@ -336,12 +361,16 @@ def get_windows():
     try:
         result = subprocess.run(
             ['hyprctl', 'clients', '-j'],
-            capture_output=True, text=True, check=True
+            capture_output=True,
+            text=True,
+            check=True
         )
         clients = json.loads(result.stdout)
         active = subprocess.run(
             ['hyprctl', 'activewindow', '-j'],
-            capture_output=True, text=True, check=True
+            capture_output=True,
+            text=True,
+            check=True
         )
         active_data = json.loads(active.stdout)
         focused_address = active_data.get('address')
@@ -579,9 +608,6 @@ def mic_set_source():
 
 # ---------- COMANDOS PRÉ-DEFINIDOS (TERMINAL) ----------
 
-# Lista de comandos pré-definidos (removidos: update, network_restart, clear_cache)
-# Adicionados: neofetch, lscpu, lsblk, ss -tulpn, hyprctl monitors, hyprctl clients,
-# hyprctl activewindow, systemctl --user restart waybar
 COMMANDS = [
     {"id": "gpu_info", "label": "Info GPU", "cmd": "nvidia-smi", "confirm": False},
     {"id": "hyprland_reload", "label": "Reiniciar Hyprland", "cmd": "hyprctl reload", "confirm": False},
@@ -600,25 +626,21 @@ COMMANDS = [
 
 @app.route('/commands/list', methods=['GET'])
 def list_commands():
-    """Retorna a lista de comandos pré-definidos (apenas id e label)."""
     return jsonify([{"id": c["id"], "label": c["label"], "confirm": c.get("confirm", False)} for c in COMMANDS])
 
 
 @app.route('/exec', methods=['POST'])
 def exec_command():
-    """Executa um comando pré-definido pelo ID."""
     data = request.json
     cmd_id = data.get('id')
     if not cmd_id:
         return jsonify({'error': 'ID do comando é obrigatório'}), 400
 
-    # Busca o comando na lista
     command = next((c for c in COMMANDS if c["id"] == cmd_id), None)
     if not command:
         return jsonify({'error': 'Comando não encontrado'}), 404
 
     try:
-        # Executa o comando com timeout de 30 segundos
         result = subprocess.run(
             command["cmd"],
             shell=True,
@@ -638,5 +660,70 @@ def exec_command():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------- NOTIFICAÇÕES ----------
+
+@app.route('/notifications', methods=['GET'])
+def get_notifications():
+    """Retorna a lista de notificações."""
+    notifications = load_notifications()
+    # Ordena por timestamp decrescente (mais recente primeiro)
+    notifications.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+    return jsonify(notifications)
+
+
+@app.route('/notifications/read', methods=['POST'])
+def mark_notification_read():
+    """Marca uma notificação como lida (por ID) ou todas."""
+    data = request.json
+    notifications = load_notifications()
+    if data.get('all'):
+        for n in notifications:
+            n['read'] = True
+    elif 'id' in data:
+        for n in notifications:
+            if n.get('id') == data['id']:
+                n['read'] = True
+                break
+    else:
+        return jsonify({'error': 'missing id or all flag'}), 400
+    save_notifications(notifications)
+    return jsonify({'ok': True})
+
+
+@app.route('/notifications/clear', methods=['DELETE'])
+def clear_notifications():
+    """Remove todas as notificações (ou apenas as lidas)."""
+    data = request.json or {}
+    notifications = load_notifications()
+    if data.get('read_only'):
+        notifications = [n for n in notifications if not n.get('read', False)]
+    else:
+        notifications = []
+    save_notifications(notifications)
+    return jsonify({'ok': True})
+
+
+@app.route('/notify/send', methods=['POST'])
+def notify_send():
+    """Envia uma notificação para o desktop (phone -> rig)."""
+    data = request.json or {}
+    summary = data.get('summary', '').strip()
+    body = data.get('body', '').strip()
+    urgency = data.get('urgency', 'normal')
+    if not summary:
+        return jsonify({'ok': False, 'error': 'summary é obrigatório'}), 400
+    result = send_notification(summary, body, urgency)
+    return jsonify(result)
+
+
+# ---------- INICIALIZAÇÃO DA THREAD DE MONITORAMENTO ----------
+@app.before_request
+def init_watcher():
+    """Garante que o watcher esteja iniciado antes de qualquer request."""
+    start_watcher()
+
+
 if __name__ == '__main__':
+    # Inicia o watcher imediatamente ao rodar o servidor
+    start_watcher()
     app.run(debug=True, host='0.0.0.0', port=8000)

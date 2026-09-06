@@ -739,6 +739,86 @@
             color: #4dffa4;
         }
 
+        /* ========== NOTIFICAÇÕES ========== */
+        .notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.4rem 0.4rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .notif-item .notif-icon {
+            flex-shrink: 0;
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+        }
+        .notif-item .notif-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notif-item .notif-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--cream);
+        }
+        .notif-item .notif-body {
+            font-size: 0.65rem;
+            color: var(--muted);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .notif-item .notif-app {
+            font-size: 0.55rem;
+            color: var(--red);
+        }
+        .notif-item .notif-time {
+            font-size: 0.5rem;
+            color: var(--muted);
+            opacity: 0.6;
+        }
+        .notif-item .notif-actions {
+            display: flex;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+        .notif-item .notif-actions button {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.2rem;
+            transition: 0.15s;
+        }
+        .notif-item .notif-actions button:hover {
+            color: var(--red);
+        }
+        .notif-item .notif-actions .read-btn {
+            color: var(--cream);
+        }
+        .notif-item .notif-actions .read-btn:hover {
+            color: var(--red);
+        }
+        .notif-item.read {
+            opacity: 0.6;
+        }
+        .notif-item.read .notif-title {
+            color: var(--muted);
+        }
+
+        .notif-empty {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.65rem;
+            padding: 1rem 0;
+        }
+
+        .notif-count {
+            color: var(--red);
+            font-size: 0.55rem;
+            margin-left: 0.2rem;
+        }
+
         /* ========== SCROLLBARS ========== */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: var(--black); }
@@ -768,6 +848,9 @@
             #screenshot-button, #lock-button, #wlogout-button { padding: 0.3rem 0.8rem !important; font-size: 0.6rem !important; }
             .cmd-btn { font-size: 0.5rem; padding: 0.3rem 0.2rem; }
             .cmd-output { font-size: 0.5rem; min-height: 80px; max-height: 140px; }
+            .notif-item { padding: 0.3rem 0.3rem; }
+            .notif-item .notif-title { font-size: 0.65rem; }
+            .notif-item .notif-body { font-size: 0.55rem; }
         }
 
         @media (max-height: 600px) {
@@ -778,6 +861,7 @@
             .volume-controls { margin: 0.3rem 0; }
             .sys-process-list { max-height: 70px; }
             .cmd-output { min-height: 60px; max-height: 100px; }
+            .notif-item { padding: 0.2rem 0.2rem; }
         }
 
         @media (max-width: 400px) {
@@ -807,6 +891,7 @@
             <button class="tab-btn" data-tab="tab4">Microfone</button>
             <button class="tab-btn" data-tab="tab5">Janelas</button>
             <button class="tab-btn" data-tab="tab6">Terminal</button>
+            <button class="tab-btn" data-tab="tab7">Notificações</button>
         </div>
 
         <!-- ============================================================ -->
@@ -839,7 +924,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT (COM BARRA DE PROGRESSO ESTÁTICA) -->
+        <!-- ABA 2: MÍDIA + VOLUME + SCREENSHOT -->
         <!-- ============================================================ -->
         <div id="tab2" class="tab-content">
             <div class="media-container">
@@ -863,7 +948,6 @@
                             <i class="fas fa-forward"></i>
                         </button>
                     </div>
-
                     <!-- BARRA DE PROGRESSO ESTÁTICA -->
                     <div class="media-timeline">
                         <div class="time-row">
@@ -967,7 +1051,7 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- ABA 6: TERMINAL (comandos pré-definidos) -->
+        <!-- ABA 6: TERMINAL -->
         <!-- ============================================================ -->
         <div id="tab6" class="tab-content">
             <div class="flex flex-col gap-2 flex-1 min-h-0">
@@ -975,6 +1059,35 @@
                     <!-- Preenchido pelo JS -->
                 </div>
                 <div id="cmd-output" class="cmd-output">Clique em um comando para executar.</div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ABA 7: NOTIFICAÇÕES -->
+        <!-- ============================================================ -->
+        <div id="tab7" class="tab-content">
+            <div class="sys-card flex-1 min-h-0 flex flex-col">
+                <div class="flex items-center justify-between mb-0.5">
+                    <span class="text-[0.5rem] text-zinc-500">Notificações</span>
+                    <span id="notif-count" class="notif-count">0 não lidas</span>
+                </div>
+                <!-- Formulário para enviar notificação -->
+                <div class="flex gap-1 mb-1">
+                    <input id="notify-summary" type="text" placeholder="Título" 
+                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
+                    <input id="notify-body" type="text" placeholder="Corpo (opcional)" 
+                           class="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
+                    <button id="notify-send-btn" class="cmd-btn" style="padding:0.2rem 0.5rem; font-size:0.5rem;">Enviar</button>
+                </div>
+                <!-- Botões em massa -->
+                <div class="flex gap-1 mb-1">
+                    <button id="notif-mark-all-read" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Marcar todas como lidas</button>
+                    <button id="notif-clear-read" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Remover lidas</button>
+                    <button id="notif-clear-all" class="cmd-btn" style="flex:1; padding:0.2rem 0.3rem; font-size:0.5rem;">Limpar tudo</button>
+                </div>
+                <div id="notif-list" class="flex-1 overflow-y-auto">
+                    <div class="notif-empty">Carregando notificações...</div>
+                </div>
             </div>
         </div>
 
@@ -993,6 +1106,10 @@
                 this.classList.add('active');
                 const tabId = this.dataset.tab;
                 document.getElementById(tabId).classList.add('active');
+                // Carrega notificações quando a aba é ativada
+                if (tabId === 'tab7') {
+                    loadNotifications();
+                }
             });
         });
 
@@ -1736,6 +1853,150 @@
         }
 
         // ================================================================
+        // FUNÇÕES DA ABA NOTIFICAÇÕES
+        // ================================================================
+
+        let notifInterval = null;
+
+        function loadNotifications() {
+            fetch("/notifications")
+                .then(res => res.json())
+                .then(notifications => {
+                    renderNotifications(notifications);
+                })
+                .catch(err => {
+                    document.getElementById("notif-list").innerHTML = '<div class="notif-empty">Erro ao carregar notificações.</div>';
+                });
+        }
+
+        function renderNotifications(notifications) {
+            const list = document.getElementById("notif-list");
+            const countEl = document.getElementById("notif-count");
+
+            const unread = notifications.filter(n => !n.read).length;
+            countEl.textContent = unread > 0 ? `${unread} não lidas` : '0 não lidas';
+
+            if (!notifications || notifications.length === 0) {
+                list.innerHTML = '<div class="notif-empty">Nenhuma notificação.</div>';
+                return;
+            }
+
+            let html = '';
+            notifications.forEach(n => {
+                const isRead = n.read || false;
+                const app = n.app_name || 'Sistema';
+                const summary = n.summary || 'Sem título';
+                const body = n.body || '';
+                const time = n.timestamp ? new Date(n.timestamp).toLocaleString() : '';
+                const icon = n.app_icon || 'fa-bell';
+                html += `
+                    <div class="notif-item ${isRead ? 'read' : ''}" data-id="${n.id}">
+                        <div class="notif-icon"><i class="fas ${icon}"></i></div>
+                        <div class="notif-content">
+                            <div class="notif-title">${summary}</div>
+                            <div class="notif-body">${body}</div>
+                            <div class="notif-app">${app}</div>
+                            <div class="notif-time">${time}</div>
+                        </div>
+                        <div class="notif-actions">
+                            ${!isRead ? `<button class="read-btn" data-id="${n.id}" title="Marcar como lida"><i class="fas fa-check"></i></button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+
+            // Eventos dos botões
+            list.querySelectorAll('.read-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = parseInt(this.dataset.id);
+                    markNotificationRead(id);
+                });
+            });
+        }
+
+        function markNotificationRead(id) {
+            fetch("/notifications/read", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) loadNotifications();
+            })
+            .catch(err => console.error("Erro ao marcar como lida:", err));
+        }
+
+        // Eventos dos botões em massa
+        document.getElementById('notif-mark-all-read').addEventListener('click', function() {
+            fetch("/notifications/read", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ all: true })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) loadNotifications();
+            });
+        });
+
+        document.getElementById('notif-clear-read').addEventListener('click', function() {
+            fetch("/notifications/clear", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ read_only: true })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) loadNotifications();
+            });
+        });
+
+        document.getElementById('notif-clear-all').addEventListener('click', function() {
+            if (!confirm("Remover todas as notificações?")) return;
+            fetch("/notifications/clear", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) loadNotifications();
+            });
+        });
+
+        // ================================================================
+        // ENVIO DE NOTIFICAÇÃO DO PAINEL PARA O DESKTOP
+        // ================================================================
+        document.getElementById('notify-send-btn').addEventListener('click', function() {
+            const summary = document.getElementById('notify-summary').value.trim();
+            const body = document.getElementById('notify-body').value.trim();
+            if (!summary) {
+                alert('Informe um título para a notificação');
+                return;
+            }
+            fetch('/notify/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ summary: summary, body: body })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    document.getElementById('notify-summary').value = '';
+                    document.getElementById('notify-body').value = '';
+                    document.getElementById('screenshot-result').textContent = '✓ Notificação enviada';
+                    setTimeout(() => document.getElementById('screenshot-result').textContent = '', 3000);
+                } else {
+                    alert('Erro ao enviar: ' + (data.error || 'desconhecido'));
+                }
+            })
+            .catch(err => console.error('Erro ao enviar notificação:', err));
+        });
+
+        // ================================================================
         // INICIALIZAÇÃO
         // ================================================================
 
@@ -1748,6 +2009,7 @@
             fetchMicSources();
             fetchWindows();
             loadCommands();
+            loadNotifications();
 
             if (sysInterval) clearInterval(sysInterval);
             sysInterval = setInterval(fetchSystemStats, 2000);
@@ -1755,6 +2017,8 @@
             micInterval = setInterval(fetchMicStatus, 2000);
             if (winInterval) clearInterval(winInterval);
             winInterval = setInterval(fetchWindows, 3000);
+            if (notifInterval) clearInterval(notifInterval);
+            notifInterval = setInterval(loadNotifications, 5000);
         }
 
         document.addEventListener("DOMContentLoaded", init);
